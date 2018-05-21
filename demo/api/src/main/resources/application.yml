@@ -1,0 +1,7 @@
+server:
+  port: 8082
+
+logging:
+  level:
+    net.consensys: TRACE
+    org.springframework: INFO

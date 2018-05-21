@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    net.consensys: TRACE
+    org.springframework: INFO
+
+
+web3-auth:
+  apps:
+    - appId: master
+      jwtSetting:
+        issuer: "web3-auth"
+        secret: "AAADDD!"
+        expiration: 2592000
+      clients:
+        - clientId: master-browser
+          type: browser
+          url: http://localhost:8080
+          loginSetting:
+            timeout: 60
+            cookieSetting:
+                path: "/"
+                domain: "localhost"
+                secure: false
+            
+    - appId: demo
+      type: browser
+      jwtSetting:
+        issuer: "demo"
+        secret: "sdsdsdsdsdsd!"
+        expiration: 2592000
+      clients:
+        - clientId: demo_client
+          type: browser
+          url: http://localhost:8081
+          loginSetting:
+            timeout: 60
+            cookieSetting:
+                path: "/"
+                domain: "localhost"
+                secure: false
+                
+        - clientId: demo_service
+          type: bearer
+          url: http://localhost:8082

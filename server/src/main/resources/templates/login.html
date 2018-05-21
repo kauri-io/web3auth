@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    
+</head>
+<body>
+    
+    <h1>Login</h1>
+    
+    <p id="error_message"></p>
+    
+    <input type="hidden" id="sentence" th:value="${sentence}" />  
+    <input type="hidden" id="error" th:value="${error}" />  
+	<form id="formLogin" action="#" th:action="@{/login}" th:object="${loginRequest}" method="post">
+		<input type="hidden" id="sentenceId" th:field="*{sentenceId}" />
+		<input type="hidden" id="address" th:field="*{address}" />
+		<input type="hidden" id="signature" th:field="*{signature}" />
+		<input type="hidden" id="redirectUri" th:field="*{redirectUri}" />
+	    <input type="hidden" id="appId" th:field="*{appId}" /> 
+	    <input type="hidden" id="clientId" th:field="*{clientId}" /> 
+	    
+    	<button type="button" onclick="sign()">with Metamask</button> 
+	</form>
+    
+    
+    <script type="text/javascript">//<![CDATA[ 
+    var sign;
+    
+    $(document).ready(function() {
+
+    	// Append URL parameters if not present (happen when recirection after an error)
+    	if(!getUrlParameter("app_id") && !getUrlParameter("redirect_uri")) {
+            var appId = $('#appId').val();
+            var clientId = $('#clientId').val();
+            var redirectUri = $('#redirectUri').val();
+            var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?app_id='+appId + "&client_id="+clientId+"&redirect_uri=" + redirectUri;
+            window.history.pushState({ path: newurl }, '', newurl);
+    		
+    	}
+    	
+       	var sentence = $('#sentence').val();
+        var error = $('#error').val();
+        if(error) {
+    		$("#error_message").append(error);
+    		console.error("Error:" + error);
+        }
+    	
+    	/**
+    	 * Load Web3 and check MetaMak
+    	 */
+	  	setTimeout(function() {
+			if (typeof web3 !== 'undefined') {
+
+				if(web3.eth.accounts.length > 0) {
+					window.web3 = new Web3(web3.currentProvider);
+					$("#address").val(web3.eth.accounts[0]);
+						 
+				} else {
+					$("#error_message").append("Please unlock Metamask");
+				}
+
+			 } else {
+				 $("#error_message").append("Please install MetaMask");
+			 }
+		}, 500);
+    	
+    	/**
+    	 * Check if the user switched MetaMask account
+    	 */
+        setInterval(function() {
+            if (web3.eth.accounts[0] !== $("#address").val()) {
+				$("#address").val(web3.eth.accounts[0]);
+            }
+		s}, 1000);
+        
+    	/**
+    	 * Trigger metamask to sign
+    	 */
+        sign = function () {    	
+    		var data = toHex(sentence);
+    		web3.currentProvider.sendAsync({ id: 1, method: 'personal_sign', params: [this.web3.eth.accounts[0], data] },
+    			function(err, data) {
+    				if(err) {
+    					$("#error").append(err);
+    					return;
+    				}
+    				$("#signature").val(data.result);
+    				$("#formLogin").submit();
+    			}
+    		);
+        };
+    	 
+    });
+
+    /**************************************************
+     * UTILS
+     ***************************************************/ 
+     function getUrlParameter(sParam) {
+         var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+             sURLVariables = sPageURL.split('&'),
+             sParameterName,
+             i;
+
+         for (i = 0; i < sURLVariables.length; i++) {
+             sParameterName = sURLVariables[i].split('=');
+
+             if (sParameterName[0] === sParam) {
+                 return sParameterName[1] === undefined ? true : sParameterName[1];
+             }
+         }
+     };
+     
+	function toHex(s) {
+		var hex = "";
+		for(var i=0;i<s.length;i++) { hex += ""+s.charCodeAt(i).toString(16); }
+		return `0x${hex}`;
+	}
+      
+  	//]]>
+    </script>
+    
+</body>
+</html>
