@@ -26,7 +26,6 @@ web3-auth:
                 secure: false
             
     - appId: demo
-      type: browser
       jwtSetting:
         issuer: "demo"
         secret: "sdsdsdsdsdsd!"

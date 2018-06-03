@@ -1,4 +1,4 @@
-package net.consensys.web3auth.module.login.controller;
+package net.consensys.web3auth.module.login.controller.exception;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,17 +12,18 @@ import org.springframework.web.servlet.ModelAndView;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.module.application.model.ApplicationException;
+import net.consensys.web3auth.module.login.controller.LoginBrowserController;
 import net.consensys.web3auth.module.login.model.exception.LoginException;
 import net.consensys.web3auth.module.login.model.exception.LogoutException;
 
-@ControllerAdvice(basePackageClasses=LoginController.class)
+@ControllerAdvice(basePackageClasses=LoginBrowserController.class)
 @Slf4j
-public class LoginControllerExceptionHandler  {
+public class LoginBrowserControllerExceptionHandler  {
     
-    private final LoginController loginController;
+    private final LoginBrowserController loginBrowserController;
     
-    public LoginControllerExceptionHandler(LoginController loginController) {
-        this.loginController = loginController;
+    public LoginBrowserControllerExceptionHandler(LoginBrowserController loginController) {
+        this.loginBrowserController = loginController;
     }
     
     @ExceptionHandler(LoginException.class)
@@ -30,7 +31,7 @@ public class LoginControllerExceptionHandler  {
     public ModelAndView handleLoginException(HttpServletRequest req, HttpServletResponse resp, LoginException ex) throws LoginException, ApplicationException {
       log.warn("Request: {} {} raised a LoginException: {}", req.getMethod(), req.getRequestURL(),  ex.getMessage());
 
-      return loginController.loginPage(ex.getAppId(), ex.getClientId(),  ex.getRedirectUri(), ex.getMessage(), new ModelMap(), req);
+      return loginBrowserController.loginPage(ex.getAppId(), ex.getClientId(),  ex.getRedirectUri(), ex.getMessage(), new ModelMap(), req);
     }
     
     @ExceptionHandler(LogoutException.class)

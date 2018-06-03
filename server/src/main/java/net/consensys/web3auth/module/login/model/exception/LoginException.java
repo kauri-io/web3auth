@@ -1,5 +1,7 @@
 package net.consensys.web3auth.module.login.model.exception;
 
+import net.consensys.web3auth.module.login.model.LoginRequest;
+
 public class LoginException extends Exception {
 
     private static final long serialVersionUID = 6532373444945616657L;
@@ -7,6 +9,7 @@ public class LoginException extends Exception {
     private final String appId;
     private final String clientId;
     private final String redirectUri;
+
     
     public LoginException(String appId, String clientId, String redirectUri, String message) {
         super(message);
@@ -20,6 +23,14 @@ public class LoginException extends Exception {
         this.appId = appId;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
+    }
+    
+    public LoginException(LoginRequest request, String message) {
+        this(request.getAppId(), request.getClientId(), request.getRedirectUri(), message);
+    }
+    
+    public LoginException(LoginRequest request, Throwable t) {
+        this(request.getAppId(), request.getClientId(), request.getRedirectUri(), t);
     }
 
     public String getAppId() {

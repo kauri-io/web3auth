@@ -62,7 +62,10 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
         
         storage.entrySet()
             .stream()
-            .filter(item -> item.getValue().isActive() && item.getValue().getDateExpiration().compareTo(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC))) < 0)
+            .filter(
+                    item -> item.getValue().isActive() 
+                 && 
+                    item.getValue().getDateExpiration().compareTo(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC))) < 0)
             .forEach(item -> {
                 log.trace("Sentence {} is expired", item.getKey());
                 item.getValue().setActive(false);

@@ -5,6 +5,8 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import lombok.ToString;
 
@@ -12,11 +14,22 @@ import lombok.ToString;
 @ToString
 public class LoginSentence {
     
+    @JsonProperty("id")
     private final String id;
+    
+    @JsonProperty("sentence")
     private final String sentence;
+    
+    @JsonProperty("date_created")
     private final Date dateCreated;
+
+    @JsonProperty("date_expiration")
     private final Date dateExpiration;
+    
+    @JsonProperty("app_id")
     private final String appId;
+    
+    @JsonProperty("active")
     private boolean active;
     
     public LoginSentence (String appId, String sentence, Long expiration) {
