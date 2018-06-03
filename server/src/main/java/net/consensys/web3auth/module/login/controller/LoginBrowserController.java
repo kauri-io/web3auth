@@ -18,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
+import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.common.service.CookieService;
 import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
@@ -43,7 +44,7 @@ public class LoginBrowserController extends LoginAbstractController {
     }
     
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public ModelAndView loginPage(
+    public ModelAndView init(
             @RequestParam(name="app_id", required = true) String appId,
             @RequestParam(name="client_id", required = true) String clientId,
             @RequestParam(name="redirect_uri", required = false) String redirectUri, 
@@ -52,8 +53,22 @@ public class LoginBrowserController extends LoginAbstractController {
         
         log.debug("loginPage(appId: {}, clientId:{}, redirectUri: {}, error: {})", appId, clientId, redirectUri, error);
         
+        // Check if application exist
+        Optional<Application> application = applicationService.getApp(appId);
+        if(!application.isPresent()) {      
+            throw new ApplicationException(appId, clientId, redirectUri, "Application [app: "+appId+"] doesn't exist");
+        }
+        
+        Optional<Client> client = applicationService.getClient(appId, clientId);
+        if(!client.isPresent()) {      
+            throw new ApplicationException(appId, clientId, redirectUri, "Client [app: "+appId+", client: "+clientId+"] doesn't exist");
+        }
+        if(!client.get().getType().equals(ClientType.BROWSER)) {
+            throw new ApplicationException(appId, clientId, redirectUri, "Client [app: "+appId+", client: "+clientId+"] has the wrong type, should be BROWSER");
+        }
+        
         // Generate and store random sentence
-        LoginSentence sentence = super.init(appId, clientId);
+        LoginSentence sentence = super.init(application.get(), client.get());
 
         model.addAttribute("app_id", appId);
         model.addAttribute("redirect_uri", redirectUri);
@@ -88,8 +103,12 @@ public class LoginBrowserController extends LoginAbstractController {
         if(!client.isPresent()) {      
             throw new ApplicationException(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getRedirectUri(), "Client [app: "+loginRequest.getAppId()+", client: "+loginRequest.getClientId()+"] doesn't exist");
         }
+        if(!client.get().getType().equals(ClientType.BROWSER)) {
+            throw new ApplicationException(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getRedirectUri(), "Client [app: "+loginRequest.getAppId()+", client: "+loginRequest.getClientId()+"] has the wrong type, should be BROWSER");
+        }
         
-        LoginResponse loginResponse = super.login(loginRequest, result);
+        
+        LoginResponse loginResponse = super.login(application.get(), client.get(), loginRequest);
         
         // Add cookies
         CookieService.addCookie(client.get().getLoginSetting().getCookieSetting(), response, Constant.COOKIE_TOKEN_NAME, loginResponse.getToken(), jwtService.getExpirationDateFromToken(application.get().getJwtSetting(), loginResponse.getToken()), true);
