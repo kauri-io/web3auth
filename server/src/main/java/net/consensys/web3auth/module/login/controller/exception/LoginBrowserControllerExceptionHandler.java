@@ -31,7 +31,7 @@ public class LoginBrowserControllerExceptionHandler  {
     public ModelAndView handleLoginException(HttpServletRequest req, HttpServletResponse resp, LoginException ex) throws LoginException, ApplicationException {
       log.warn("Request: {} {} raised a LoginException: {}", req.getMethod(), req.getRequestURL(),  ex.getMessage());
 
-      return loginBrowserController.loginPage(ex.getAppId(), ex.getClientId(),  ex.getRedirectUri(), ex.getMessage(), new ModelMap(), req);
+      return loginBrowserController.init(ex.getAppId(), ex.getClientId(),  ex.getRedirectUri(), ex.getMessage(), new ModelMap(), req);
     }
     
     @ExceptionHandler(LogoutException.class)
