@@ -11,15 +11,21 @@ public class AuthenticationToken extends AbstractAuthenticationToken implements 
     private static final long serialVersionUID = 620427322160440219L;
     
     private final Object principal;
+    private final String token;
     
     public AuthenticationToken(Object principal) {
         this(principal, null);
     }
     
-    public AuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {
+    public AuthenticationToken(Object principal, String token) {
+        this(principal, token, null);
+    }
+
+    public AuthenticationToken(Object principal, String token, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         super.setAuthenticated(true);
         this.principal = principal;
+        this.token = token;
     }
 
     @Override
@@ -31,5 +37,10 @@ public class AuthenticationToken extends AbstractAuthenticationToken implements 
     public Object getPrincipal() {
         return principal;
     }
+
+    public String getToken() {
+        return token;
+    }
+    
 
 }

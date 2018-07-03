@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import net.consensys.web3auth.module.adapter.springsecurity.Web3AuthSecurityConfiguration;
 
 @Configuration
-
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends Web3AuthSecurityConfiguration {

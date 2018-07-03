@@ -69,10 +69,10 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         log.trace("token found = {}", token.get());
         
         // Validate token
-        TokenDetails tokenDetails = restTemplate.postForObject(authEndpoint+"/admin/token?app_id="+client.getAppId(),  token.get(), TokenDetails.class);
+        TokenDetails tokenDetails = restTemplate.postForObject(authEndpoint+"/admin/token?app_id="+client.getAppId(), token.get(), TokenDetails.class);
 
         // Setup context
-        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress());
+        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(), token.get());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("User {} authenticated!", tokenDetails.getAddress());
