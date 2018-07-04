@@ -1,0 +1,17 @@
+version: '3'
+services:
+
+  web3-auth:
+    build: ./
+    image: kauri/web3-auth
+    ports:
+    - "8080:8080"
+    environment:
+      LOG_LEVEL: TRACE
+      WEB3AUTH_CONF: classpath:/application.yml
+#      WEB3AUTH_CONF: classpath:/application-kauri.yml
+    networks:
+      - default
+
+networks:
+  default:

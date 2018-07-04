@@ -3,7 +3,7 @@ server:
 
 logging:
   level:
-    net.consensys: TRACE
+    net.consensys.web3auth: ${LOG_LEVEL:INFO}
     org.springframework: INFO
 
 
@@ -44,3 +44,5 @@ web3-auth:
         - clientId: demo_service
           type: bearer
           url: http://localhost:8082
+          loginSetting:
+            timeout: 60

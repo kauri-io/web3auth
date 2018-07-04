@@ -5,17 +5,19 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.module.application.model.Application;
-import net.consensys.web3auth.module.application.model.ApplicationException;
 import net.consensys.web3auth.module.application.model.Application.Client;
+import net.consensys.web3auth.module.application.model.ApplicationException;
 import net.consensys.web3auth.module.application.service.ApplicationService;
 import net.consensys.web3auth.module.login.model.LoginRequest;
 import net.consensys.web3auth.module.login.model.LoginResponse;
@@ -24,8 +26,8 @@ import net.consensys.web3auth.module.login.model.exception.LoginException;
 import net.consensys.web3auth.module.login.service.SentenceGeneratorService;
 import net.consensys.web3auth.service.JwtService;
 
-@Controller
-@RequestMapping("/api")
+@RestController
+@RequestMapping("/api/login")
 @Slf4j
 public class LoginRestController extends LoginAbstractController {
     
@@ -35,12 +37,12 @@ public class LoginRestController extends LoginAbstractController {
         super(sentenceGeneratorService, jwtService, applicationService);
     }
     
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public LoginSentence init(
+    @RequestMapping(method = RequestMethod.GET)
+    public @ResponseBody LoginSentence init(
             @RequestParam(name="app_id", required = true) String appId,
             @RequestParam(name="client_id", required = true) String clientId) throws LoginException, ApplicationException {
         
-        log.debug("loginInit(appId: {}, clientId: {})", appId, clientId);
+        log.debug("init(appId: {}, clientId: {})", appId, clientId);
         
         // Check if application exist
         Optional<Application> application = applicationService.getApp(appId);
@@ -59,8 +61,8 @@ public class LoginRestController extends LoginAbstractController {
         return super.init(application.get(), client.get());
     } 
     
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public LoginResponse login(@Valid final LoginRequest loginRequest, BindingResult result) throws LoginException, ApplicationException {
+    @RequestMapping(method = RequestMethod.POST)
+    public @ResponseBody LoginResponse login(@RequestBody final LoginRequest loginRequest, BindingResult result) throws LoginException, ApplicationException {
         log.debug("login(loginRequest: {})", loginRequest);
 
         // Check object
