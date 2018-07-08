@@ -22,15 +22,16 @@ import net.consensys.web3auth.common.service.CookieService;
 
 @Slf4j
 public class AuthorisationFilter extends OncePerRequestFilter {
-    private final static String AUTHORIZATION_HEADER = "Authorization";
     
     private final ClientDetails client;
     private final String authEndpoint;
     private final RestTemplate restTemplate;
+    private final String authorizationHeader;
     
-    public AuthorisationFilter(String authEndpoint, ClientDetails client) {
+    public AuthorisationFilter(String authEndpoint, ClientDetails client, String authorizationHeader) {
         this.client = client;
         this.authEndpoint = authEndpoint;
+        this.authorizationHeader = authorizationHeader;
         this.restTemplate = new RestTemplate();
     }
     
@@ -49,13 +50,13 @@ public class AuthorisationFilter extends OncePerRequestFilter {
             }
             
         } else if(client.getType().equals(ClientType.BEARER)) {
-            String authenticationHeader = request.getHeader(AUTHORIZATION_HEADER);
+            String authenticationHeader = request.getHeader(authorizationHeader);
             
             if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
                 token = Optional.of(authenticationHeader.substring(7));
                 
             } else {
-                log.trace("No header {}", AUTHORIZATION_HEADER);
+                log.trace("No header {}", authorizationHeader);
                 filterChain.doFilter(request, response);
                 return;
             }

@@ -11,8 +11,8 @@
 
     const _CONFIG ={
     	"endpoint": "http://localhost:8080",
-    	"app_id": "demo",
-    	"client_id": "demo_service"
+    	"app_id": "kauri",
+    	"client_id": "kauri-gateway"
     }; 
     const _ACCOUNT = {
     	"address": "0x00a329c0648769a73afac7f9381e08fb43dbea72",

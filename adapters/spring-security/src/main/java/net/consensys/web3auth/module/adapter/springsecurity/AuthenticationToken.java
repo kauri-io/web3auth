@@ -12,6 +12,10 @@ public class AuthenticationToken extends AbstractAuthenticationToken implements 
     
     private final Object principal;
     private final String token;
+
+    public AuthenticationToken() {
+        this(null);
+    }
     
     public AuthenticationToken(Object principal) {
         this(principal, null);

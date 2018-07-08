@@ -11,16 +11,23 @@ import org.springframework.web.client.RestTemplate;
 import net.consensys.web3auth.common.dto.ClientDetails;
 
 public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    private final static String AUTHORIZATION_HEADER = "Authorization";
 
     private final RestTemplate restTemplate;
     private final String authEndpoint;
     private final ClientDetails client;
+    private final String authorizationHeader;
 
     public Web3AuthSecurityConfiguration(String appId, String clientId, String authEndpoint) {
-       this.authEndpoint = authEndpoint;
-       this.restTemplate = new RestTemplate();
-       this.client = restTemplate.getForObject(authEndpoint+"/admin/application/"+appId+"/client/"+clientId, ClientDetails.class);
+       this(appId, clientId, authEndpoint, AUTHORIZATION_HEADER);
     }
+    
+    public Web3AuthSecurityConfiguration(String appId, String clientId, String authEndpoint, String authorizationHeader) {
+        this.authEndpoint = authEndpoint;
+        this.authorizationHeader = authorizationHeader;
+        this.restTemplate = new RestTemplate();
+        this.client = restTemplate.getForObject(authEndpoint+"/admin/application/"+appId+"/client/"+clientId, ClientDetails.class);
+     }
     
     @Bean
     protected AuthenticationEntryPoint authenticationEntryPoint() throws Exception {
@@ -29,7 +36,7 @@ public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter 
     
     @Bean
     protected AuthorisationFilter authorisationFilter() throws Exception {
-        return new AuthorisationFilter(authEndpoint, client);
+        return new AuthorisationFilter(authEndpoint, client, authorizationHeader);
     }
     
     @Override
