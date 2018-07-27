@@ -6,6 +6,8 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -74,12 +76,10 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
     }
     
     private static String generate(int len, String dic) {
-        String result = "";
-        for (int i = 0; i < len; i++) {
-            int index = random.nextInt(dic.length());
-            result += dic.charAt(index);
-        }
-        return result;
+        return IntStream.range(0, len)
+            .mapToObj( (i) ->  dic.charAt(random.nextInt(dic.length())) )
+            .map(String::valueOf)
+            .collect(Collectors.joining());
     }
 
 }
