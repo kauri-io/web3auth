@@ -5,6 +5,9 @@ import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class AuthenticationToken extends AbstractAuthenticationToken implements Authentication {
 
@@ -31,7 +34,23 @@ public class AuthenticationToken extends AbstractAuthenticationToken implements 
         this.principal = principal;
         this.token = token;
     }
+    
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+    
+    public String getName(boolean remove0x) {
+        Assert.notNull(super.getName(), "name can't be null");
+        
+        if(super.getName().startsWith("0x")) {
+            return super.getName().substring(2, super.getName().length());
+        }
+        
+        return super.getName();
+    }
 
+    @JsonIgnore
     @Override
     public Object getCredentials() {
         return null;
@@ -45,6 +64,19 @@ public class AuthenticationToken extends AbstractAuthenticationToken implements 
     public String getToken() {
         return token;
     }
+
+    @JsonIgnore
+    @Override
+    public boolean isAuthenticated() {
+        return super.isAuthenticated();
+    }
+
+    @JsonIgnore
+    @Override
+    public Object getDetails() {
+        return super.getDetails();
+    }
+    
     
 
 }

@@ -6,17 +6,18 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.client.RestTemplate;
 
 import net.consensys.web3auth.common.dto.ClientDetails;
+import net.consensys.web3auth.common.service.Web3AuthWSClient;
+import net.consensys.web3auth.common.service.Web3AuthWSClientRestImpl;
 
 public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final static String AUTHORIZATION_HEADER = "Authorization";
 
-    private final RestTemplate restTemplate;
-    private final String authEndpoint;
     private final ClientDetails client;
     private final String authorizationHeader;
+    private final String authEndpoint;
+    private final Web3AuthWSClient web3AuthWSClient;
 
     public Web3AuthSecurityConfiguration(String appId, String clientId, String authEndpoint) {
        this(appId, clientId, authEndpoint, AUTHORIZATION_HEADER);
@@ -25,9 +26,14 @@ public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter 
     public Web3AuthSecurityConfiguration(String appId, String clientId, String authEndpoint, String authorizationHeader) {
         this.authEndpoint = authEndpoint;
         this.authorizationHeader = authorizationHeader;
-        this.restTemplate = new RestTemplate();
-        this.client = restTemplate.getForObject(authEndpoint+"/admin/application/"+appId+"/client/"+clientId, ClientDetails.class);
-     }
+        this.web3AuthWSClient =  new Web3AuthWSClientRestImpl(authEndpoint, appId, clientId);
+        this.client = this.web3AuthWSClient.getClient();
+    }
+    
+    @Bean
+    protected Web3AuthWSClient web3AuthWSClient() {
+        return this.web3AuthWSClient; 
+    }
     
     @Bean
     protected AuthenticationEntryPoint authenticationEntryPoint() throws Exception {
@@ -36,7 +42,7 @@ public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter 
     
     @Bean
     protected AuthorisationFilter authorisationFilter() throws Exception {
-        return new AuthorisationFilter(authEndpoint, client, authorizationHeader);
+        return new AuthorisationFilter(authEndpoint, client, authorizationHeader, web3AuthWSClient);
     }
     
     @Override

@@ -1,6 +1,9 @@
 package net.consensys.web3auth.module.adapter.springsecurity;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -10,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,20 +21,19 @@ import net.consensys.web3auth.common.dto.ClientDetails;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.common.dto.TokenDetails;
 import net.consensys.web3auth.common.service.CookieService;
+import net.consensys.web3auth.common.service.Web3AuthWSClient;
 
 @Slf4j
 public class AuthorisationFilter extends OncePerRequestFilter {
     
     private final ClientDetails client;
-    private final String authEndpoint;
-    private final RestTemplate restTemplate;
     private final String authorizationHeader;
+    private final Web3AuthWSClient web3AuthWSClient;
     
-    public AuthorisationFilter(String authEndpoint, ClientDetails client, String authorizationHeader) {
+    public AuthorisationFilter(String authEndpoint, ClientDetails client, String authorizationHeader, Web3AuthWSClient web3AuthWSClient) {
         this.client = client;
-        this.authEndpoint = authEndpoint;
         this.authorizationHeader = authorizationHeader;
-        this.restTemplate = new RestTemplate();
+        this.web3AuthWSClient = web3AuthWSClient;
     }
     
     @Override
@@ -51,12 +52,19 @@ public class AuthorisationFilter extends OncePerRequestFilter {
             
         } else if(client.getType().equals(ClientType.BEARER)) {
             String authenticationHeader = request.getHeader(authorizationHeader);
-            
+            log.trace("authenticationHeader={}", authenticationHeader);
+            String authenticationParameter = decode(request.getParameter(authorizationHeader));
+            log.trace("authenticationParameter={}", authenticationParameter);
+    
             if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
                 token = Optional.of(authenticationHeader.substring(7));
                 
+            } else if (authenticationParameter != null && authenticationParameter.startsWith("Bearer ")) {
+                token = Optional.of(authenticationParameter.substring(7));
+                
             } else {
                 log.trace("No header {}", authorizationHeader);
+                log.trace("No parameter {}", authorizationHeader);
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -70,7 +78,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         log.trace("token found = {}", token.get());
         
         // Validate token
-        TokenDetails tokenDetails = restTemplate.postForObject(authEndpoint+"/admin/token?app_id="+client.getAppId(), token.get(), TokenDetails.class);
+        TokenDetails tokenDetails = this.web3AuthWSClient.validateToken(token.get());
 
         // Setup context
         AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(), token.get());
@@ -81,7 +89,15 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         // Next
         filterChain.doFilter(request, response);
     }
-
-
+    
+    private String decode(String value) throws UnsupportedEncodingException {
+        return Optional.ofNullable(value).map( (v) -> {
+            try {
+                return URLDecoder.decode(v, StandardCharsets.UTF_8.toString());
+            } catch (UnsupportedEncodingException e) {
+                return null;
+            }
+        }).orElse(null);
+    }
 
 }
