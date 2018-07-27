@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>web3auth-server</artifactId>
     <parent>
@@ -6,7 +8,7 @@
         <artifactId>web3auth-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-  
+
     <properties>
         <web3j.version>3.4.0</web3j.version>
         <jjwt.version>0.5</jjwt.version>
@@ -16,9 +18,9 @@
 
         <!-- web3auth -->
         <dependency>
-        	<groupId>net.consensys.web3auth</groupId>
-        	<artifactId>web3auth-common</artifactId>
-        	<version>0.0.1-SNAPSHOT</version>
+            <groupId>net.consensys.web3auth</groupId>
+            <artifactId>web3auth-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Spring -->
@@ -58,26 +60,71 @@
             <version>${web3j.version}</version>
         </dependency>
     </dependencies>
-    
-  
+
+
     <build>
-    	<finalName>web3auth</finalName>
-    	<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-						<configuration>
-							<classifier>exec</classifier>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-    	</plugins>
+        <finalName>web3auth</finalName>
+        <plugins>
+
+            <plugin>
+                <groupId>org.web3j</groupId>
+                <artifactId>web3j-maven-plugin</artifactId>
+                <version>0.2.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate-sources</goal>
+                        </goals>
+                        <configuration>
+                            <soliditySourceFiles>
+                                <directory>${basedir}/src/main/resources</directory>
+                                <includes>
+                                    <include>**/*.sol</include>
+                                </includes>
+                            </soliditySourceFiles>
+                            <sourceDestination>${basedir}/target/generated-sources/solidity</sourceDestination>
+                            <packageName>net.consensys.web3auth.smartcontract.generated</packageName>
+                            <nativeJavaType>true</nativeJavaType>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/generated-sources/solidity</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
     </build>
-  
 </project>

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -11,6 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.ClientDetails;
 import net.consensys.web3auth.common.dto.ClientType;
+import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.common.dto.TokenDetails;
 import net.consensys.web3auth.common.service.CookieService;
 import net.consensys.web3auth.common.service.Web3AuthWSClient;
@@ -79,9 +84,22 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         
         // Validate token
         TokenDetails tokenDetails = this.web3AuthWSClient.validateToken(token.get());
+        log.trace("tokenDetails = {}", tokenDetails);
 
+        // Authorities
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        if(tokenDetails.getOrganisations() != null) {
+            for(Organisation o: tokenDetails.getOrganisations()) {
+                authorities.add(new SimpleGrantedAuthority(o.getName()));
+                for(String p: o.getPrivileges()) {
+                    authorities.add(new SimpleGrantedAuthority(p));
+                }
+            }
+            
+        }
+        
         // Setup context
-        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(), token.get());
+        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(), token.get(), authorities);
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("User {} authenticated!", tokenDetails.getAddress());

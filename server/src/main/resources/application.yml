@@ -6,7 +6,12 @@ logging:
     net.consensys.web3auth: ${LOG_LEVEL:INFO}
     org.springframework: INFO
 
-
+ethereum:
+  enable: true
+  node:
+    url: http://localhost:8545
+    
+    
 web3-auth:
   apps:
     - appId: master
@@ -14,6 +19,9 @@ web3-auth:
         issuer: "web3-auth"
         secret: "AAADDD!"
         expiration: 2592000
+      authoritySetting:
+        enable: false
+        smartContract: "0x26c8d09e5c0b423e2827844c770f61c9af2870e7"
       clients:
         - clientId: master-browser
           type: browser
@@ -30,6 +38,9 @@ web3-auth:
         issuer: "demo"
         secret: "sdsdsdsdsdsd!"
         expiration: 2592000
+      authoritySetting:
+        enable: true
+        smartContract: "0x62d69f6867a0a084c6d313943dc22023bc263691"
       clients:
         - clientId: demo_client
           type: browser

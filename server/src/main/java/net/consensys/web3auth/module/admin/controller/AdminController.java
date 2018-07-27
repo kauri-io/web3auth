@@ -1,6 +1,8 @@
 package net.consensys.web3auth.module.admin.controller;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.ClientDetails;
+import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.common.dto.TokenDetails;
 import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
 import net.consensys.web3auth.module.application.service.ApplicationService;
+import net.consensys.web3auth.module.authority.Authority;
 import net.consensys.web3auth.service.JwtService;
 
 @RestController
@@ -25,11 +29,14 @@ public class AdminController {
 
     private final JwtService jwtService;
     private final ApplicationService applicationService;
+    private final Authority authority;
+
     
     @Autowired
-    public AdminController(JwtService jwtService, ApplicationService applicationService) {
+    public AdminController(JwtService jwtService, ApplicationService applicationService, Authority authority) {
         this.jwtService = jwtService;
         this.applicationService = applicationService;
+        this.authority = authority;
     }
     
     @RequestMapping(value = "/token", method = RequestMethod.POST)
@@ -47,12 +54,20 @@ public class AdminController {
         }
         
         String address = jwtService.getUsernameFromToken(application.get().getJwtSetting(), token);
+        List<Organisation> organisations = null;
+        if(application.get().getAuthoritySetting().isEnable()) {
+            organisations = authority
+                .getOrganisations(application.get().getAuthoritySetting().getSmartContract(), address)
+                .stream()
+                .map((name) -> new Organisation(name, authority.getPrivileges(application.get().getAuthoritySetting().getSmartContract(), address, name)))
+                .collect(Collectors.toList());
+        }
         
-        return new TokenDetails(address);
+        return new TokenDetails(address, organisations);
     } 
 
     @RequestMapping(value = "/application/{appId}/client/{clientId}", method = RequestMethod.GET)
-    public ClientDetails getApplicationDetails(@PathVariable String appId, @PathVariable String clientId)throws Exception {
+    public ClientDetails getApplicationDetails(@PathVariable String appId, @PathVariable String clientId) throws Exception {
         
         log.debug("getApplicationDetails(appId: {}, clientId: {})", appId, clientId);
         

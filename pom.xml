@@ -43,5 +43,17 @@
         </dependency>        
     </dependencies>
     
+  <build>
+    <!-- In the multi-module root pom, use the pluginManagement to define the version of the maven-plugin -->
+    <pluginManagement>
+      <plugins>
+          <plugin>
+                <groupId>org.web3j</groupId>
+                <artifactId>web3j-maven-plugin</artifactId>
+                <version>0.1.5-SNAPSHOT</version>
+          </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>

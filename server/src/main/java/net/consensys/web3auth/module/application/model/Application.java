@@ -13,7 +13,15 @@ public class Application {
 
     private String appId;
     private JwtSetting jwtSetting;
+    private AuthoritySetting authoritySetting;
     private List<Client> clients;
+    
+    @Data
+    public static class AuthoritySetting {
+        private boolean enable;
+        private String smartContract;
+    }
+    
     
     @Data
     public static class JwtSetting {

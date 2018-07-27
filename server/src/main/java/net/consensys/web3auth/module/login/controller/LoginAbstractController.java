@@ -20,67 +20,64 @@ import net.consensys.web3auth.service.crypto.CryptoUtils;
 
 @Slf4j
 public abstract class LoginAbstractController implements LoginController {
-    
+
     protected final SentenceGeneratorService sentenceGeneratorService;
     protected final JwtService jwtService;
     protected final ApplicationService applicationService;
-    
+
     @Autowired
-    protected LoginAbstractController(SentenceGeneratorService sentenceGeneratorService, JwtService jwtService, ApplicationService applicationService) {
+    protected LoginAbstractController(SentenceGeneratorService sentenceGeneratorService, JwtService jwtService,
+            ApplicationService applicationService) {
         this.sentenceGeneratorService = sentenceGeneratorService;
         this.jwtService = jwtService;
         this.applicationService = applicationService;
     }
-    
+
     @Override
     public LoginSentence init(Application application, Client client) throws LoginException, ApplicationException {
         log.trace("init(application: {}, client: {})", application, client);
-        
-        LoginSentence sentence = sentenceGeneratorService.generateSentence(application.getAppId(), client.getLoginSetting().getTimeout());
-        
+
+        LoginSentence sentence = sentenceGeneratorService.generateSentence(application.getAppId(),
+                client.getLoginSetting().getTimeout());
+
         return sentence;
     }
 
     @Override
-    public LoginResponse login(Application application, Client client, LoginRequest loginRequest) throws LoginException, ApplicationException {
+    public LoginResponse login(Application application, Client client, LoginRequest loginRequest)
+            throws LoginException, ApplicationException {
         log.trace("login(application: {}, client: {}, loginRequest: {})", application, client, loginRequest);
-        
+
         // Get Sentence
         LoginSentence sentence = sentenceGeneratorService.getSentencce(loginRequest.getSentenceId());
-        if(sentence == null) {
+        if (sentence == null) {
             throw new LoginException(loginRequest, "sentence not found");
         }
-        if(!sentence.isActive()) {
+        if (!sentence.isActive()) {
             throw new LoginException(loginRequest, "sentence disabled after timeout");
         }
-        
+
         // Check signature
-        Map<Integer, String> addressesRecovered = CryptoUtils.ecrecover(
-                loginRequest.getSignature(), 
+        Map<Integer, String> addressesRecovered = CryptoUtils.ecrecover(loginRequest.getSignature(),
                 sentence.getSentence());
-        
+
         Optional<String> address = addressesRecovered.entrySet().stream()
-                .filter(map -> loginRequest.getAddress().equals(map.getValue()))
-                .map(map -> map.getValue())
-                .findFirst();
-        
-        if(!address.isPresent()) {
-            throw new LoginException(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getRedirectUri(), "Signature doesn't match");
+                .filter(map -> loginRequest.getAddress().equals(map.getValue())).map(map -> map.getValue()).findFirst();
+
+        if (!address.isPresent()) {
+            throw new LoginException(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getRedirectUri(),
+                    "Signature doesn't match");
         }
         
         // Generate JWT
         String token = jwtService.generateToken(application.getJwtSetting(), loginRequest.getAddress());
-        
+
         // Disable the one-time sentence
         sentenceGeneratorService.disableSentence(loginRequest.getSentenceId());
-        
-        return new LoginResponse(
-                loginRequest.getAppId(), 
-                loginRequest.getClientId(), 
-                loginRequest.getAddress(), 
-                token, 
+
+        return new LoginResponse(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getAddress(), token,
                 jwtService.getExpirationDateFromToken(application.getJwtSetting(), token));
-        
+
     }
 
 }

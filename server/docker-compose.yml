@@ -9,7 +9,6 @@ services:
     environment:
       LOG_LEVEL: TRACE
       WEB3AUTH_CONF: classpath:/application.yml
-#      WEB3AUTH_CONF: classpath:/application-kauri.yml
     networks:
       - default
 
