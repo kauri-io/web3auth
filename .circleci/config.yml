@@ -13,6 +13,9 @@ jobs:
       MAVEN_OPTS: -Xmx3200m
     steps:
       - checkout
+      - dependencies:
+        pre:
+          - sudo add-apt-repository ppa:ethereum/ethereum; sudo apt-get update; sudo apt-get install solc
       # Download and cache dependencies
       - restore_cache:
           keys:
