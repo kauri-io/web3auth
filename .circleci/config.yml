@@ -14,7 +14,7 @@ jobs:
     steps:
       - checkout
       - dependencies:
-        pre:
+          pre:
           - sudo add-apt-repository ppa:ethereum/ethereum; sudo apt-get update; sudo apt-get install solc
       # Download and cache dependencies
       - restore_cache:
