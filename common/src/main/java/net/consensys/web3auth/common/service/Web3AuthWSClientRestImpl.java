@@ -26,7 +26,7 @@ public class Web3AuthWSClientRestImpl implements Web3AuthWSClient {
 
     @Override
     public AccountDetails getAccountByToken(String token) {
-        return restTemplate.getForObject(authEndpoint+"/account/token/"+token+"?app_id="+appId, AccountDetails.class);
+        return restTemplate.postForObject(authEndpoint+"/account/token?app_id="+appId, token, AccountDetails.class);
     }
 
     @Override
