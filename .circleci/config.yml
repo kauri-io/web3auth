@@ -24,7 +24,7 @@ jobs:
           - v1-dependencies-
       - run:
           name: Install solc
-          command: sudo apt-get install software-properties-common; sudo add-apt-repository --yes ppa:ethereum/ethereum ; sudo apt-get update --allow-unauthenticated; sudo apt-get install solc 
+          command: sudo apt-get install software-properties-common; sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1C52189C923F6CA9; sudo add-apt-repository --yes ppa:ethereum/ethereum ; sudo apt-get update --allow-unauthenticated; sudo apt-get install solc 
       - run:
           name: maven install
           command: mvn clean install -DskipTests
