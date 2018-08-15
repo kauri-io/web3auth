@@ -1,4 +1,4 @@
-package net.consensys.web3auth.service.crypto;
+package net.consensys.web3auth.module.common;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -17,8 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class CryptoUtils {
     
-    private final static String PERSONAL_MESSAGE_PREFIX = "\u0019Ethereum Signed Message:\n";
+    private static final String PERSONAL_MESSAGE_PREFIX = "\u0019Ethereum Signed Message:\n";
 
+    private CryptoUtils() {}
+    
     public static Map<Integer, String> ecrecover(String signature, String message) {
         log.debug("checkSig(signature={}, message={})", signature, message);
     

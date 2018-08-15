@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 import "./Ownable.sol";
-import "../../../main/resources/AuthorityI.sol";
+import "../../../main/resources/Web3AuthPolicyI.sol";
 
 contract RoleAuthority is Ownable{
   
@@ -56,13 +56,11 @@ contract RoleAuthority is Ownable{
         r[0] = orgName;
     }
 
-    function getPrivileges(address _user, bytes32 _organisation) public view returns(bytes32[] memory r) {
-        r = new bytes32[](1);
-
+    function getPrivileges(address _user, bytes32 _organisation) public view returns(bytes32 r) {
         if(users[_user] == Role.USER) {
-            r[0] = stringToBytes32("USER");
+            return stringToBytes32("USER");
         } else {
-            r[0] = stringToBytes32("ADMIN");
+            return stringToBytes32("ADMIN");
         }
     }
    

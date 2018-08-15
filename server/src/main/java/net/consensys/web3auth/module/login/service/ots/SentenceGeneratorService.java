@@ -1,4 +1,6 @@
-package net.consensys.web3auth.module.login.service;
+package net.consensys.web3auth.module.login.service.ots;
+
+import java.util.Optional;
 
 import net.consensys.web3auth.module.login.model.LoginSentence;
 
@@ -21,7 +23,7 @@ public interface SentenceGeneratorService {
      * @param id
      * @return sentence
      */
-    LoginSentence getSentencce(String id);
+    Optional<LoginSentence> getSentence(String id);
     
     /**
      * Disable a sentence after use

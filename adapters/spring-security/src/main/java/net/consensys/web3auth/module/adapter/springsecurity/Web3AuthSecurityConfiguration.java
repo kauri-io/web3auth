@@ -12,7 +12,7 @@ import net.consensys.web3auth.common.service.Web3AuthWSClient;
 import net.consensys.web3auth.common.service.Web3AuthWSClientRestImpl;
 
 public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private final static String AUTHORIZATION_HEADER = "Authorization";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final ClientDetails client;
     private final String authorizationHeader;
@@ -36,13 +36,13 @@ public class Web3AuthSecurityConfiguration extends WebSecurityConfigurerAdapter 
     }
     
     @Bean
-    protected AuthenticationEntryPoint authenticationEntryPoint() throws Exception {
+    protected AuthenticationEntryPoint authenticationEntryPoint() {
         return new EntryPointUnauthorizedHandler(authEndpoint, client);
     }
     
     @Bean
-    protected AuthorisationFilter authorisationFilter() throws Exception {
-        return new AuthorisationFilter(authEndpoint, client, authorizationHeader, web3AuthWSClient);
+    protected AuthorisationFilter authorisationFilter() {
+        return new AuthorisationFilter(client, authorizationHeader, web3AuthWSClient);
     }
     
     @Override

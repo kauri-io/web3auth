@@ -1,11 +1,9 @@
-package net.consensys.web3auth.service;
+package net.consensys.web3auth.module.common;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.function.Function;
-
-import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -13,15 +11,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.module.application.model.Application.JwtSetting;
+import net.consensys.web3auth.module.common.exception.ExpiredTokenException;
+import net.consensys.web3auth.module.common.exception.InvalidTokenException;
 
-@Service
 @Slf4j
-public class JwtService {
+public class JwtUtils {
 
+    private JwtUtils() {}
     
-    public JwtService() { }
-    
-    public String generateToken(JwtSetting jwtSetting, String owner) {
+    public static String generateToken(JwtSetting jwtSetting, String owner) {
         
         log.debug("generateToken(owner={})", owner);
         
@@ -45,16 +43,16 @@ public class JwtService {
      * @param token
      * @return
      */
-   public Boolean validateToken(JwtSetting jwtSetting, String  token) {
+   public static Boolean validateToken(JwtSetting jwtSetting, String  token) {
         
         try {
             Jwts.parser().setSigningKey(jwtSetting.getSecret()).parseClaimsJws(token);
             return true;
         } catch (IllegalArgumentException e) {
-            throw e;
+            throw new InvalidTokenException(e);
         } catch (ExpiredJwtException e) {
             log.warn("the token is expired and not valid anymore", e);
-            throw e;
+            throw new ExpiredTokenException(e);
         }
     }
    
@@ -63,7 +61,7 @@ public class JwtService {
      * @param token
      * @return subject/username (address)
      */
-    public String getUsernameFromToken(JwtSetting jwtSetting, String token) {
+    public static String getUsernameFromToken(JwtSetting jwtSetting, String token) {
         return getClaimFromToken(jwtSetting, token, Claims::getSubject);
     }
 
@@ -72,7 +70,7 @@ public class JwtService {
      * @param token
      * @return issued date
      */
-    public Date getIssuedAtDateFromToken(JwtSetting jwtSetting, String token) {
+    public static Date getIssuedAtDateFromToken(JwtSetting jwtSetting, String token) {
         return getClaimFromToken(jwtSetting, token, Claims::getIssuedAt);
     }
 
@@ -81,7 +79,7 @@ public class JwtService {
      * @param token
      * @return expiration date
      */
-    public Date getExpirationDateFromToken(JwtSetting jwtSetting, String token) {
+    public static Date getExpirationDateFromToken(JwtSetting jwtSetting, String token) {
         return getClaimFromToken(jwtSetting, token, Claims::getExpiration);
     }  
     
@@ -91,7 +89,7 @@ public class JwtService {
      * @param claimsResolver
      * @return claim
      */
-    public <T> T getClaimFromToken(JwtSetting jwtSetting, String token, Function<Claims, T> claimsResolver) {
+    public static <T> T getClaimFromToken(JwtSetting jwtSetting, String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parser().setSigningKey(jwtSetting.getSecret()).parseClaimsJws(token).getBody();
 
         return claimsResolver.apply(claims);

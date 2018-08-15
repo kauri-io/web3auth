@@ -4,12 +4,11 @@ server:
 logging:
   level:
     net.consensys.web3auth: ${LOG_LEVEL:INFO}
-    org.springframework: INFO
 
 ethereum:
   enable: true
   node:
-    url: http://localhost:8545
+    url: ${ETHEREUM_RPC:http://localhost:8545}
     
     
 web3-auth:
@@ -17,11 +16,10 @@ web3-auth:
     - appId: master
       jwtSetting:
         issuer: "web3-auth"
-        secret: "AAADDD!"
+        secret: "secret"
         expiration: 2592000
       authoritySetting:
         enable: false
-        smartContract: "0x26c8d09e5c0b423e2827844c770f61c9af2870e7"
       clients:
         - clientId: master-browser
           type: browser
@@ -36,14 +34,15 @@ web3-auth:
     - appId: demo
       jwtSetting:
         issuer: "demo"
-        secret: "sdsdsdsdsdsd!"
+        secret: "secret!"
         expiration: 2592000
       authoritySetting:
         enable: true
-        smartContract: "0x62d69f6867a0a084c6d313943dc22023bc263691"
+        smartContract: "0xd0b8a3c5d18f66b82c9d883728ed8078757b4c2b"
+        mode: GETTER
       clients:
         - clientId: demo_client
-          type: browser
+          type: BROWSER
           url: http://localhost:8081
           loginSetting:
             timeout: 60
@@ -53,7 +52,7 @@ web3-auth:
                 secure: false
                 
         - clientId: demo_service
-          type: bearer
+          type: BEARER
           url: http://localhost:8082
           loginSetting:
             timeout: 60

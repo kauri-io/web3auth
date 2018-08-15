@@ -5,11 +5,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,8 +26,7 @@ import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.ClientDetails;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.common.dto.Organisation;
-import net.consensys.web3auth.common.dto.TokenDetails;
-import net.consensys.web3auth.common.service.CookieService;
+import net.consensys.web3auth.common.dto.AccountDetails;
 import net.consensys.web3auth.common.service.Web3AuthWSClient;
 
 @Slf4j
@@ -35,7 +36,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
     private final String authorizationHeader;
     private final Web3AuthWSClient web3AuthWSClient;
     
-    public AuthorisationFilter(String authEndpoint, ClientDetails client, String authorizationHeader, Web3AuthWSClient web3AuthWSClient) {
+    public AuthorisationFilter(ClientDetails client, String authorizationHeader, Web3AuthWSClient web3AuthWSClient) {
         this.client = client;
         this.authorizationHeader = authorizationHeader;
         this.web3AuthWSClient = web3AuthWSClient;
@@ -46,9 +47,9 @@ public class AuthorisationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         // Extract token 
-        Optional<String> token = null;
+        Optional<String> token = Optional.empty();
         if(client.getType().equals(ClientType.BROWSER)) {
-            token = CookieService.getCookieValue(request, Constant.COOKIE_TOKEN_NAME);
+            token = getCookieValue(request, Constant.COOKIE_TOKEN_NAME);
             if(!token.isPresent()) {
                 log.trace("No cookie {}", Constant.COOKIE_TOKEN_NAME);
                 filterChain.doFilter(request, response);
@@ -79,23 +80,26 @@ public class AuthorisationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         }
         
+        //////////////////////////////////////////////////////////////////////////
+        
+        if(!token.isPresent()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         log.trace("token found = {}", token.get());
         
         // Validate token
-        TokenDetails tokenDetails = this.web3AuthWSClient.validateToken(token.get());
+        AccountDetails tokenDetails = this.web3AuthWSClient.getAccountByToken(token.get());
         log.trace("tokenDetails = {}", tokenDetails);
 
         // Authorities
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         if(tokenDetails.getOrganisations() != null) {
             for(Organisation o: tokenDetails.getOrganisations()) {
-                authorities.add(new SimpleGrantedAuthority(o.getName()));
-                for(String p: o.getPrivileges()) {
-                    authorities.add(new SimpleGrantedAuthority(p));
-                }
+                authorities.add(new SimpleGrantedAuthority(o.getName()+":"+o.getRole()));
             }
-            
+
         }
         
         // Setup context
@@ -108,14 +112,26 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
     
-    private String decode(String value) throws UnsupportedEncodingException {
-        return Optional.ofNullable(value).map( (v) -> {
+    private static String decode(String value) throws UnsupportedEncodingException {
+        return Optional.ofNullable(value).map(v -> {
             try {
                 return URLDecoder.decode(v, StandardCharsets.UTF_8.toString());
             } catch (UnsupportedEncodingException e) {
                 return null;
             }
         }).orElse(null);
+    }
+    
+    public static Optional<String> getCookieValue(HttpServletRequest req, String cookieName) {
+        
+        if(req.getCookies() == null) {
+            return Optional.empty();
+        }
+        
+        return Arrays.stream(req.getCookies())
+                .filter(c -> c.getName().equals(cookieName))
+                .findFirst()
+                .map(Cookie::getValue);
     }
 
 }

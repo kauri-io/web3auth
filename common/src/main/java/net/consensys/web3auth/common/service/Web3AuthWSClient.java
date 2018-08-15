@@ -1,11 +1,13 @@
 package net.consensys.web3auth.common.service;
 
 import net.consensys.web3auth.common.dto.ClientDetails;
-import net.consensys.web3auth.common.dto.TokenDetails;
+import net.consensys.web3auth.common.dto.AccountDetails;
 
 public interface Web3AuthWSClient {
 
     ClientDetails getClient();
     
-    TokenDetails validateToken(String token);
+    AccountDetails getAccountByToken(String token);
+    
+    AccountDetails getAccountByAddress(String address);
 }

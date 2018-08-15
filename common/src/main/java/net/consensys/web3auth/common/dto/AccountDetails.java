@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class TokenDetails implements Serializable {
+public class AccountDetails implements Serializable {
 
     private static final long serialVersionUID = 7167350123061149069L;
 

@@ -1,5 +1,6 @@
 package net.consensys.web3auth.common.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -9,9 +10,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Organisation {
+public class Organisation implements Serializable {
 
+    private static final long serialVersionUID = -2161172913558756817L;
+     
     private String name;
-    private List<String> privileges;
+    private String role;
     
 }

@@ -1,4 +1,4 @@
-    package net.consensys.web3auth.module.login.service;
+package net.consensys.web3auth.module.login.service.ots;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -46,8 +47,8 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
     }
 
     @Override
-    public LoginSentence getSentencce(String id) {
-        return storage.get(id);
+    public Optional<LoginSentence> getSentence(String id) {
+        return Optional.ofNullable(storage.get(id));
     }
 
     @Override
@@ -77,7 +78,7 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
     
     private static String generate(int len, String dic) {
         return IntStream.range(0, len)
-            .mapToObj( (i) ->  dic.charAt(random.nextInt(dic.length())) )
+            .mapToObj( i ->  dic.charAt(random.nextInt(dic.length())) )
             .map(String::valueOf)
             .collect(Collectors.joining());
     }

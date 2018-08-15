@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Data;
 import lombok.ToString;
 import net.consensys.web3auth.common.dto.ClientType;
-import net.consensys.web3auth.common.service.CookieSetting;
 
 @Data
 @ToString
@@ -19,8 +18,12 @@ public class Application {
     @Data
     public static class AuthoritySetting {
         private boolean enable;
+        private SmartContractMode mode;
         private String smartContract;
+        
     }
+    
+    public enum SmartContractMode {GETTER, EVENT}
     
     
     @Data
@@ -44,4 +47,14 @@ public class Application {
         private CookieSetting cookieSetting;
     }
     
+    @Data
+    public static class CookieSetting {
+        
+        private String jwtCookie;
+        private String userCookie;
+        private String path;
+        private String domain;
+        private boolean secure;
+        
+    }
 }

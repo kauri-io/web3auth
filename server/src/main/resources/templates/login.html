@@ -39,7 +39,6 @@
             var redirectUri = $('#redirectUri').val();
             var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?app_id='+appId + "&client_id="+clientId+"&redirect_uri=" + redirectUri;
             window.history.pushState({ path: newurl }, '', newurl);
-    		
     	}
     	
        	var sentence = $('#sentence').val();

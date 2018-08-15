@@ -1,4 +1,4 @@
-package net.consensys.web3auth.module.authority;
+package net.consensys.web3auth.module.authority.exception;
 
 public class SmartContractException extends RuntimeException {
 

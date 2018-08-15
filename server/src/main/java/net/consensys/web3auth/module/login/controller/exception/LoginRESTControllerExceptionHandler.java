@@ -10,40 +10,53 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
-import lombok.extern.slf4j.Slf4j;
+import net.consensys.web3auth.module.application.exception.ApplicationNotFound;
+import net.consensys.web3auth.module.application.exception.ClientNotFound;
 import net.consensys.web3auth.module.login.controller.LoginRestController;
-import net.consensys.web3auth.module.login.model.exception.LoginException;
-import net.consensys.web3auth.module.login.model.exception.LogoutException;
+import net.consensys.web3auth.module.login.exception.SentenceExpiredException;
+import net.consensys.web3auth.module.login.exception.SentenceNotFoundException;
+import net.consensys.web3auth.module.login.exception.SignatureException;
+import net.consensys.web3auth.module.login.exception.UnexpectedException;
+import net.consensys.web3auth.module.login.exception.WrongClientTypeException;
 
 @ControllerAdvice(basePackageClasses=LoginRestController.class)
 @Order(1)
-@Slf4j
 public class LoginRESTControllerExceptionHandler  {
-    
-    public LoginRESTControllerExceptionHandler() {
-    }
-    
-    @ExceptionHandler(LoginException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleLoginException(HttpServletRequest req, HttpServletResponse resp, LoginException ex) throws LoginException {
-      log.warn("Request: {} {} raised a LoginException: {}", req.getMethod(), req.getRequestURL(),  ex.getMessage());
 
-      throw ex;
+    @ExceptionHandler(ApplicationNotFound.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, ApplicationNotFound ex)  {
+        throw ex;
     }
-    
-    @ExceptionHandler(LogoutException.class)
+    @ExceptionHandler(ClientNotFound.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, ClientNotFound ex)  {
+        throw ex;
+    }
+    @ExceptionHandler(SentenceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, SentenceNotFoundException ex)  {
+        throw ex;
+    }
+    @ExceptionHandler(SentenceExpiredException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleLogoutException(HttpServletRequest req, LogoutException ex) throws LogoutException {
-      log.warn("Request: {} {} raised a LogoutException {}", req.getMethod(),  req.getRequestURL(),  ex.getMessage());
-
-      throw ex;
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, SentenceExpiredException ex)  {
+        throw ex;
+    }
+    @ExceptionHandler(SignatureException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, SignatureException ex)  {
+        throw ex;
+    }
+    @ExceptionHandler(WrongClientTypeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, WrongClientTypeException ex)  {
+        throw ex;
     }
     
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleException(HttpServletRequest req, Exception ex) throws Exception  {
-      log.error("Request: {} {} raised an unexpected Exception", req.getMethod(),  req.getRequestURL(),  ex);
-
-      throw ex;
+    public ModelAndView handleException(HttpServletRequest req, Exception ex) {
+      throw new UnexpectedException(ex);
     }
 }
