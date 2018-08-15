@@ -11,13 +11,8 @@ import org.web3j.protocol.http.HttpService;
 public class Web3jConfiguration {
     
     @Bean
-    @ConditionalOnExpression("${ethereum.enable}")
+    @ConditionalOnExpression("${ethereum.enable:true}")
     Web3j web3j(@Value("${ethereum.node.url}") String url) {
         return Web3j.build(new HttpService(url));
-    } 
-    @Bean
-    @ConditionalOnExpression("!${ethereum.enable}")
-    Web3j web3j() {
-        return null;
     } 
 }
