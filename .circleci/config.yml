@@ -7,7 +7,7 @@ jobs:
   build-and-test:
     docker:
       - image: circleci/openjdk:8-jdk
-      - image: ethereum/solc
+      - image: mrhornsby/solc
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
