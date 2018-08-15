@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
 
 import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
@@ -20,13 +22,17 @@ import net.consensys.web3auth.module.authority.service.SmartContractGetterAuthor
 @ConfigurationProperties(prefix = "web3-auth")
 public class ApplicationService {
     
-    private final Web3j web3j;
-
+    private final String ethereumNodeUrl;
     private final List<Application> apps;
     
     @Autowired
-    public ApplicationService(Web3j web3j) {
-        this.web3j = web3j;
+    public ApplicationService(@Value("${ethereum.enable}") boolean ethereumEnable, 
+            @Value("${ethereum.node.url}") String ethereumUrl) {
+        if(ethereumEnable) {
+            this.ethereumNodeUrl = ethereumUrl;
+        } else {
+            this.ethereumNodeUrl = null;
+        }
         apps = new ArrayList<>();
     }
 
@@ -54,6 +60,12 @@ public class ApplicationService {
     public AuthorityService getAuthorityService(String appId) {
         Application application = this.getApp(appId);
         
+        if(this.ethereumNodeUrl == null) {
+            throw new IllegalArgumentException("Ethereum disable!");
+        }
+        
+        Web3j web3j = Web3j.build(new HttpService(this.ethereumNodeUrl));
+
         if(application.getAuthoritySetting().isEnable()) {
             
             switch (application.getAuthoritySetting().getMode()) {
