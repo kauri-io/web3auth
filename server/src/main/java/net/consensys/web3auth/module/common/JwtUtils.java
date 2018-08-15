@@ -43,7 +43,7 @@ public class JwtUtils {
      * @param token
      * @return
      */
-   public static Boolean validateToken(JwtSetting jwtSetting, String  token) {
+   public static Boolean validateToken(JwtSetting jwtSetting, String token) {
         
         try {
             Jwts.parser().setSigningKey(jwtSetting.getSecret()).parseClaimsJws(token);

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,10 +30,10 @@ public class AccountController {
     }
     
     
-    @RequestMapping(value = "/token/{token}", method = RequestMethod.GET)
+    @RequestMapping(value = "/token", method = RequestMethod.POST)
     public AccountDetails validateToken(
             @RequestParam(name="app_id", required = true) String appId, 
-            @PathVariable String token) {
+            @RequestBody String token) {
         
         log.debug("validateToken(appId: {}, token: {})", appId, token);
         

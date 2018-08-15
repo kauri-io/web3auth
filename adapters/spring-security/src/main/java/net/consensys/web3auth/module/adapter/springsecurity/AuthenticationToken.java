@@ -1,6 +1,5 @@
 package net.consensys.web3auth.module.adapter.springsecurity;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
