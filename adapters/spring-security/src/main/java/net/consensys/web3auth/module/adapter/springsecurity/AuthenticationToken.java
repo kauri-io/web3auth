@@ -8,7 +8,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import net.consensys.web3auth.module.adapter.springsecurity.deserialization.*;
+
+@JsonDeserialize(using = AuthenticationTokenSerializer.class)
 public class AuthenticationToken extends AbstractAuthenticationToken implements Authentication {
 
     private static final long serialVersionUID = 620427322160440219L;
