@@ -38,7 +38,7 @@ web3-auth:
         expiration: 2592000
       authoritySetting:
         enable: true
-        smartContract: "0xd0b8a3c5d18f66b82c9d883728ed8078757b4c2b"
+        smartContract: ${CONTRACT_ADDRESS:0xd0b8a3c5d18f66b82c9d883728ed8078757b4c2b}
         mode: GETTER
       clients:
         - clientId: demo_client

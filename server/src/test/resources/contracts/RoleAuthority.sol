@@ -8,22 +8,22 @@ contract RoleAuthority is Ownable{
     /************************************
      * ENUMS
      ************************************/
-    enum Role {USER, ADMIN}
-    Role constant defaultRole = Role.USER;
+    enum Role {CURATOR, ADMIN}
+    Role constant defaultRole = Role.CURATOR;
     
+    
+    /************************************
+     * EVENTS
+     ************************************/
+    event memberEnabled(address indexed _member, bytes32 indexed _organisation, Role indexed _privilege); 
+    event memberDisabled(address indexed _member, bytes32 indexed _organisation, Role indexed _privilege);
 
     /************************************
      * STORAGE
      ************************************/
     bytes32 public orgName;
     mapping(address => Role) public users;
-    
-    
-    /************************************
-     * EVENTS
-     ************************************/
-    event UserAdded(address indexed _user, Role indexed _role);
-    
+
     
     /************************************
      * CONSTRUCTOR
@@ -33,19 +33,21 @@ contract RoleAuthority is Ownable{
         orgName = _orgName;
     }
 
+
+
     /************************************
      * FUNCTIONS
      ************************************/
-    function add(address _user) public onlyOwner {
-        users[_user] = defaultRole;
-        
-        emit UserAdded(_user, defaultRole);
-    }
-
     function add(address _user, Role _role) public onlyOwner {
-        users[_user] = _role;
+        users[_user] = Role(_role);
         
-        emit UserAdded(_user, _role);
+        emit memberEnabled(_user, orgName, Role(_role));
+    }
+    function remove(address _user) public onlyOwner {
+        Role role = users[_user];
+        delete users[_user];
+        
+        emit memberDisabled(_user, orgName, role);
     }
 
     /************************************
@@ -56,12 +58,8 @@ contract RoleAuthority is Ownable{
         r[0] = orgName;
     }
 
-    function getPrivileges(address _user, bytes32 _organisation) public view returns(bytes32 r) {
-        if(users[_user] == Role.USER) {
-            return stringToBytes32("USER");
-        } else {
-            return stringToBytes32("ADMIN");
-        }
+    function getPrivileges(address _user, bytes32 _organisation) public view returns(Role r) {
+        return users[_user];
     }
    
     function stringToBytes32(string memory source) returns (bytes32 result) {

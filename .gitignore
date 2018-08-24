@@ -48,4 +48,5 @@ client-secret.json
 ._client-secret.json
 apikey.py
 #Docker
+*.ethereum_*
 *.*docker*
