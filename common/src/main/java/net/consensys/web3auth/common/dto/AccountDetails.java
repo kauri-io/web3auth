@@ -1,7 +1,7 @@
 package net.consensys.web3auth.common.dto;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,5 +17,5 @@ public class AccountDetails implements Serializable {
     private static final long serialVersionUID = 7167350123061149069L;
 
     private String address;
-    private List<Organisation> organisations;
+    private Set<Organisation> organisations;
 }

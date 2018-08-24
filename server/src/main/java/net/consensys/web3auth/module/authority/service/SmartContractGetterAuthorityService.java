@@ -3,7 +3,8 @@
  */
 package net.consensys.web3auth.module.authority.service;
 
-import java.util.List;
+import java.math.BigInteger;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,26 +25,27 @@ public class SmartContractGetterAuthorityService extends AbstractAuthorityServic
     }
 
     @Override
-    public List<Organisation> getOrganisation(String address) {
+    public Set<Organisation> getOrganisation(String address) {
+        
         try {
             @SuppressWarnings("unchecked")
-            List<byte[]> result = (List<byte[]>) loadContract().getOrganisations(address).send();
+            Set<byte[]> result = (Set<byte[]>) loadContract().getOrganisations(address).send();
 
-            return bytes32ListToStringList(result).stream()
+            return bytes32ListToStringSet(result).stream()
                     .map(o -> new Organisation(o, getPrivileges(address, o)))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
 
         } catch (Exception e) {
             throw new SmartContractException(e);
         }
     }
 
-    public String getPrivileges(String user, String organisation) {
+    public int getPrivileges(String user, String organisation) {
         
         try {
-            byte[] result = (byte[]) loadContract().getPrivilege(user, stringToWeb3jSupportedBytes(organisation)).send();
+            BigInteger result = loadContract().getPrivilege(user, stringToWeb3jSupportedBytes(organisation)).send();
 
-            return bytes32ToString(result);
+            return result.intValue();
             
         } catch (Exception e) {
             throw new SmartContractException(e);

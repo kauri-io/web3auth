@@ -1,6 +1,7 @@
 package net.consensys.web3auth.module.account.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,7 +56,7 @@ public class AccountController {
         
         Application application = applicationService.getApp(appId);
 
-        List<Organisation> organisations = null;
+        Set<Organisation> organisations = null;
         if(application.getAuthoritySetting().isEnable()) {
             organisations = applicationService.getAuthorityService(appId).getOrganisation(address);
         }

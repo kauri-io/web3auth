@@ -6,6 +6,7 @@ package net.consensys.web3auth.module.authority.service;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.web3j.protocol.Web3j;
@@ -42,6 +43,10 @@ public abstract class AbstractAuthorityService {
         return bytes32List.stream().map(AbstractAuthorityService::bytes32ToString).collect(Collectors.toList());
     }
     
+    protected static Set<String> bytes32ListToStringSet(Set<byte[]> result) {
+        return result.stream().map(AbstractAuthorityService::bytes32ToString).collect(Collectors.toSet());
+    }
+    
     protected static String bytes32ToString(byte[] bytes32) {
         return new String(trim(bytes32));
     }
@@ -61,5 +66,15 @@ public abstract class AbstractAuthorityService {
         }
 
         return Arrays.copyOf(bytes, i + 1);
+    }
+    
+
+    
+    protected static String remove0x(String str) {
+        if(!str.startsWith("0x")) {
+            return str;
+        }
+        
+        return str.substring(2);
     }
 }

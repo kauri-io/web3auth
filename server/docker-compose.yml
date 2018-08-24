@@ -11,22 +11,54 @@ services:
       WEB3AUTH_CONF: classpath:/application.yml
       ETHEREUM_RPC: http://ganache:8545
     depends_on:
-      - ganache
+      - truffle
+    links:
+      - truffle
+    command: >
+      /bin/sh -c '
+        echo Waiting for contract to be deployed...;
+        while ! nc -z truffle 8888;
+        do
+          sleep 1;
+        done;
+        result=$$(curl http://truffle:8888/api/Community | jq -r .address)
+        export CONTRACT_ADDRESS=$$result
+        echo CONTRACT_ADDRESS=$$CONTRACT_ADDRESS
+        echo Starting app...
+        java -jar app.jar
+      '
     networks:
       - default
       
-  ganache:
-    image: trufflesuite/ganache-cli
+  parity:
+    image: gjeanmart/parity-dev-docker
     ports:
       - "8545:8545"
     volumes:
-      - .ethereum_data:/ethereum_data
-    entrypoint:
-      - node
-      - ./build/cli.node.js
-      - --host=0.0.0.0
-      - --port=8545
-      - --secure -u 0 -u 1
+      - .ethereum_data:/root/.local/share/io.parity.ethereum
+      - .ethereum_log:/data/parity-logs
+    environment:
+      AMOUNT: 10
+      ACCOUNTS: 0xf0f15cedc719b5a55470877b0710d5c7816916b1,0x31b26E43651e9371C88aF3D36c14CfD938BaF4Fd
+    networks:
+      - default
+
+
+  truffle:
+    image: gjeanmart/truffle-docker
+    ports:
+      - "8888:8888"
+    volumes:
+      - /home/gjeanmart/workspace/kauri/tmp_smartcontract/smart-contracts:/project
+    depends_on:
+      - parity
+    environment:
+      CONTRACT_NAME: Community
+      ACTION: migrate
+      NETWORK: docker
+      RPC_HOST: parity
+      API_PORT: 8888
+      API_HOST: 0.0.0.0
     networks:
       - default
 

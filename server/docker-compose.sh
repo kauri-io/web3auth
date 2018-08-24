@@ -1,10 +1,11 @@
 #!/bin/bash
 
-
 echo "removing old containers"
 docker-compose down
 
 echo "removing storages"
+sudo rm -rf .ethereum_data
+sudo rm -rf .ethereum_log
 
 
 echo "Build"
