@@ -41,12 +41,20 @@ jobs:
       - checkout
       - run:
           name: Release Snapshot
-          command: |
-            mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
-            ./.scripts/build-docker-image.sh
+          command: mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
+
+  release-docker-image:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: maven install
+          command: mvn clean install -DskipTests
+      - run:
+          name: Release docker image
+          command: ./.scripts/build-docker-image.sh
 
   release:
-    machine: true
     docker:
       - image: circleci/openjdk:8-jdk
     working_directory: ~/repo
@@ -57,9 +65,7 @@ jobs:
       - checkout
       - run:
           name: Release
-          command: |
-            ./.scripts/handle-maven-release.sh
-            ./.scripts/build-docker-image.sh
+          command: ./.scripts/handle-maven-release.sh
 
   update-dev-branch:
     docker:
@@ -91,6 +97,12 @@ workflows:
           filters:
             branches:
               only: master
+      - release-docker-image:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: development
       - update-dev-branch:
           requires:
             - release
