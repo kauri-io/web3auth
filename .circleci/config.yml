@@ -46,6 +46,7 @@ jobs:
             ./.scripts/build-docker-image.sh
 
   release:
+    machine: true
     docker:
       - image: circleci/openjdk:8-jdk
     working_directory: ~/repo
