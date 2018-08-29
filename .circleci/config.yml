@@ -41,7 +41,9 @@ jobs:
       - checkout
       - run:
           name: Release Snapshot
-          command: mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
+          command: |
+            mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
+            ./.scripts/build-docker-image.sh
 
   release:
     docker:
@@ -54,7 +56,9 @@ jobs:
       - checkout
       - run:
           name: Release
-          command: ./.scripts/handle-maven-release.sh
+          command: |
+            ./.scripts/handle-maven-release.sh
+            ./.scripts/build-docker-image.sh
 
   update-dev-branch:
     docker:
