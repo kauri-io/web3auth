@@ -29,12 +29,12 @@ import rx.functions.Action1;
 @Slf4j
 public class SmartContractEventAuthorityService extends AbstractAuthorityService implements AuthorityService {
 
-    private static final Event EVENT_MEMBER_ENABLED = new Event("memberEnabled", 
+    private static final Event EVENT_MEMBER_ENABLED = new Event("MemberEnabled", 
             Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}, new TypeReference<Bytes32>() {}, new TypeReference<Uint8>() {}),
             Arrays.<TypeReference<?>>asList());
     private static final String EVENT_MEMBER_ENABLED_HASH = EventEncoder.encode(EVENT_MEMBER_ENABLED);
 
-    private static final Event EVENT_MEMBER_DISABLED = new Event("memberDisabled", 
+    private static final Event EVENT_MEMBER_DISABLED = new Event("MemberDisabled", 
             Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}, new TypeReference<Bytes32>() {}, new TypeReference<Uint8>() {}),
             Arrays.<TypeReference<?>>asList());
     private static final String EVENT_MEMBER_DISABLED_HASH = EventEncoder.encode(EVENT_MEMBER_DISABLED);
@@ -59,8 +59,13 @@ public class SmartContractEventAuthorityService extends AbstractAuthorityService
 
             web3j.ethLogObservable(filter)
                 .filter(e-> {
+                    // Filter by events (only MemberEnabled and MemberDisabled)
+                    if(!e.getTopics().get(0).equals(EVENT_MEMBER_ENABLED_HASH) && !e.getTopics().get(0).equals(EVENT_MEMBER_DISABLED_HASH)) {
+                        return false;
+                    }
+                    // Filter by user address
                     Address a = (Address) FunctionReturnDecoder.decodeIndexedValue(e.getTopics().get(1), new TypeReference<Address>() {});
-                    return address.equals(remove0x(a.getValue())) ;
+                    return remove0x(address.toLowerCase()).equals(remove0x(a.getValue().toLowerCase())) ;
                 })
                 .subscribe(new Action1<Log>() {
                     @Override    
@@ -82,6 +87,7 @@ public class SmartContractEventAuthorityService extends AbstractAuthorityService
                     }
                 });
 
+            log.debug("getOrganisation(address: {}): {}", address, orgs);
             return orgs;
             
         } catch (Exception e) {

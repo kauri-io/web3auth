@@ -1,6 +1,5 @@
 package net.consensys.web3auth.module.account.controller;
 
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
