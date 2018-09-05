@@ -1,11 +1,9 @@
-package net.consensys.web3auth.module.login.service.ots;
+package net.consensys.web3auth.module.login.service.ots.db;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -16,10 +14,11 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.module.login.model.LoginSentence;
+import net.consensys.web3auth.module.login.service.ots.SentenceGeneratorService;
 
 @Service
 @Slf4j
-public class InMemorySentenceGeneratorService implements SentenceGeneratorService {
+public class MongoDBSentenceGeneratorService implements SentenceGeneratorService {
 
     private static final String ALPHA_CAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String ALPHA = "abcdefghijklmnopqrstuvwxyz";
@@ -28,11 +27,11 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
     private static final int LENGTH = 10;
     private static final SecureRandom random = new SecureRandom();
     
-    private final Map<String, LoginSentence> storage;
+    private final SentenceRepository repository;
     
     @Autowired
-    public InMemorySentenceGeneratorService() {
-        storage = new HashMap<>();
+    public MongoDBSentenceGeneratorService(SentenceRepository repository) {
+        this.repository = repository;
     }
     
     @Override
@@ -40,7 +39,7 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
         log.debug("generateSentence()");
         
         LoginSentence s = new LoginSentence(appId, generate(LENGTH, ALPHA_CAPS+ALPHA+NUMERIC), expiration);
-        storage.put(s.getId(), s);
+        repository.save(s);
         
         log.debug("generateSentence(): {}", s);
         return s;
@@ -48,14 +47,16 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
 
     @Override
     public Optional<LoginSentence> getSentence(String id) {
-        return Optional.ofNullable(storage.get(id));
+        return Optional.ofNullable(repository.findOne(id));
     }
 
     @Override
     public void disableSentence(String id) {
         log.debug("disableSentence(id: {})", id);
         
-        storage.get(id).setActive(false);
+        LoginSentence sentence = repository.findOne(id);
+        sentence.setActive(false);
+        repository.save(sentence);
     }
 
     @Override
@@ -63,15 +64,16 @@ public class InMemorySentenceGeneratorService implements SentenceGeneratorServic
     public void scheduleAutoDisablingExpiredSentence() {
         log.debug("scheduleAutoDisablingExpiredSentence()");
         
-        storage.entrySet()
+        repository.findAll()
             .stream()
             .filter(
-                    item -> item.getValue().isActive() 
+                    item -> item.isActive() 
                  && 
-                    item.getValue().getDateExpiration().compareTo(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC))) < 0)
+                    item.getDateExpiration().compareTo(Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC))) < 0)
             .forEach(item -> {
-                log.trace("Sentence {} is expired", item.getKey());
-                item.getValue().setActive(false);
+                log.trace("Sentence {} is expired", item.getId());
+                item.setActive(false);
+                repository.save(item);
             });
         
     }

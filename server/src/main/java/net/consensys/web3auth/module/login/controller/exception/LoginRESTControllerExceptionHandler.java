@@ -2,6 +2,7 @@ package net.consensys.web3auth.module.login.controller.exception;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ValidationException;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,11 @@ public class LoginRESTControllerExceptionHandler  {
     @ExceptionHandler(SentenceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, SentenceNotFoundException ex)  {
+        throw ex;
+    }
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleException(HttpServletRequest req, HttpServletResponse resp, ValidationException ex)  {
         throw ex;
     }
     @ExceptionHandler(SentenceExpiredException.class)
