@@ -5,30 +5,45 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
+@AllArgsConstructor @NoArgsConstructor
 @ToString
+@Document
 public class LoginSentence {
-    
-    @JsonProperty("id")
-    private final String id;
-    
-    @JsonProperty("sentence")
-    private final String sentence;
-    
-    @JsonProperty("date_created")
-    private final Date dateCreated;
 
+    @Id
+    @Field("id")
+    @JsonProperty("id")
+    private String id;
+
+    @Field("sentence")
+    @JsonProperty("sentence")
+    private String sentence;
+
+    @Field("date_created")
+    @JsonProperty("date_created")
+    private Date dateCreated;
+
+    @Field("date_expiration")
     @JsonProperty("date_expiration")
-    private final Date dateExpiration;
-    
+    private Date dateExpiration;
+
+    @Field("app_id")
     @JsonProperty("app_id")
-    private final String appId;
-    
+    private String appId;
+
+    @Field("active")
     @JsonProperty("active")
     private boolean active;
     

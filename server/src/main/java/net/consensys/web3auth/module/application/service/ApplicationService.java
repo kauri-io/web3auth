@@ -54,7 +54,7 @@ public class ApplicationService {
                 .stream()
                 .filter(client -> client.getClientId().equals(clientId))
                 .findFirst()
-                .orElseThrow(() -> new ClientNotFound(appId));
+                .orElseThrow(() -> new ClientNotFound(clientId));
     }
     
     public AuthorityService getAuthorityService(String appId) {

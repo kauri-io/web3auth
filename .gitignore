@@ -50,3 +50,4 @@ apikey.py
 #Docker
 *.ethereum_*
 *.*docker*
+/.README.md.html

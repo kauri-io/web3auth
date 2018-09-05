@@ -11,27 +11,14 @@ ethereum:
   node:
     url: ${ETHEREUM_RPC:http://localhost:8545}
     
+cors:
+  origins: "${CORS_ORIGIN:http://localhost:8080}"
+  methods: "${CORS_METHODS:GET,POST,PUT,OPTIONS,DELETE,PATCH}"
+  headers: "${CORS_HEADERS:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept,X-Auth-Token}"
+  credentials: "${CORS_CREDENTIALS:true}"
     
-web3-auth:
-  apps:
-    - appId: master
-      jwtSetting:
-        issuer: "web3-auth"
-        secret: "secret"
-        expiration: 2592000
-      authoritySetting:
-        enable: false
-      clients:
-        - clientId: master-browser
-          type: browser
-          url: http://localhost:8080
-          loginSetting:
-            timeout: 60
-            cookieSetting:
-                path: "/"
-                domain: "localhost"
-                secure: false
-            
+web3-auth:      
+  apps:            
     - appId: demo
       jwtSetting:
         issuer: "demo"
@@ -41,6 +28,7 @@ web3-auth:
         enable: true
         smartContract: ${CONTRACT_ADDRESS:0xd0b8a3c5d18f66b82c9d883728ed8078757b4c2b}
         mode: GETTER
+
       clients:
         - clientId: demo_client
           type: BROWSER
@@ -57,3 +45,7 @@ web3-auth:
           url: http://localhost:8082
           loginSetting:
             timeout: 60
+            cookieSetting:
+                path: "/"
+                domain: "localhost"
+                secure: false

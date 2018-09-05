@@ -18,12 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.ClientType;
-import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
 import net.consensys.web3auth.module.common.CookieUtils;
-import net.consensys.web3auth.module.common.JwtUtils;
 import net.consensys.web3auth.module.login.model.LoginRequest;
-import net.consensys.web3auth.module.login.model.LoginResponse;
 import net.consensys.web3auth.module.login.model.LoginSentence;
 import net.consensys.web3auth.module.login.service.LoginService;
 
@@ -65,7 +62,7 @@ public class LoginBrowserController {
     public ModelAndView login(
             @Valid final LoginRequest loginRequest, 
             BindingResult result, final ModelMap model,
-            HttpServletResponse response, HttpServletRequest request) {
+            HttpServletResponse response) {
         
         log.debug("login(loginRequest: {})", loginRequest);
 
@@ -74,18 +71,14 @@ public class LoginBrowserController {
             throw new ValidationException("validation error");
         }
         
-        LoginResponse loginResponse = loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BROWSER, loginRequest);
+        loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BROWSER, loginRequest, response);
 
-        Application application = loginService.getApplication(loginRequest.getAppId());
-        Client client = loginService.getClient(loginRequest.getAppId(), loginRequest.getClientId());
-        
-        // Add cookies
-        CookieUtils.addCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_TOKEN_NAME, loginResponse.getToken(), JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), loginResponse.getToken()), true);
-        CookieUtils.addCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_ADDRESS_NAME, loginRequest.getAddress(), JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), loginResponse.getToken()), false);
-
-        
         // Redirect
         if(StringUtils.isEmpty(loginRequest.getRedirectUri())) {
+            Client client = this.loginService.getClient(
+                    loginRequest.getAppId(), 
+                    loginRequest.getClientId());
+            
             return new ModelAndView(REDIRECT + client.getUrl()); 
         } else {
             return new ModelAndView(REDIRECT + loginRequest.getRedirectUri());

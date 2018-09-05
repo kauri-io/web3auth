@@ -5,16 +5,21 @@ package net.consensys.web3auth.module.login.service;
 
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.servlet.http.HttpServletResponse;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
 import net.consensys.web3auth.module.application.service.ApplicationService;
+import net.consensys.web3auth.module.common.CookieUtils;
 import net.consensys.web3auth.module.common.CryptoUtils;
 import net.consensys.web3auth.module.common.JwtUtils;
 import net.consensys.web3auth.module.login.exception.SentenceExpiredException;
@@ -59,7 +64,7 @@ public class LoginServiceImpl implements LoginService{
     }
 
     @Override
-    public LoginResponse login(String appId, String clientId, ClientType expectedClientType, LoginRequest loginRequest) {
+    public LoginResponse login(String appId, String clientId, ClientType expectedClientType, LoginRequest loginRequest, HttpServletResponse response) {
         log.trace("login(application: {}, client: {}, loginRequest: {})", appId, clientId, loginRequest);
 
         Application application = this.getApplication(appId);
@@ -95,6 +100,10 @@ public class LoginServiceImpl implements LoginService{
 
         // Disable the one-time sentence
         sentenceGeneratorService.disableSentence(loginRequest.getSentenceId());
+
+        // Set cookies
+        CookieUtils.addCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_TOKEN_NAME, token, JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), token), true);
+        CookieUtils.addCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_ADDRESS_NAME, loginRequest.getAddress(), JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), token), false);
 
         return new LoginResponse(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getAddress(), token,
                 JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), token));

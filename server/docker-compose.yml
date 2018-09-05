@@ -9,6 +9,7 @@ services:
     environment:
       LOG_LEVEL: TRACE
       WEB3AUTH_CONF: classpath:/application.yml
+      SPRING_DATA_MONGODB_HOST: mongodb
       ETHEREUM_RPC: http://ganache:8545
     depends_on:
       - truffle
@@ -27,6 +28,13 @@ services:
         echo Starting app...
         java -jar app.jar
       '
+    networks:
+      - default
+      
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
     networks:
       - default
       
