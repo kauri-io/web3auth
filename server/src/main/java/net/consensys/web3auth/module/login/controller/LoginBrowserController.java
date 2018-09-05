@@ -75,7 +75,11 @@ public class LoginBrowserController {
 
         // Redirect
         if(StringUtils.isEmpty(loginRequest.getRedirectUri())) {
-            return new ModelAndView(REDIRECT + loginRequest.getRedirectUri()); 
+            Client client = this.loginService.getClient(
+                    loginRequest.getAppId(), 
+                    loginRequest.getClientId());
+            
+            return new ModelAndView(REDIRECT + client.getUrl()); 
         } else {
             return new ModelAndView(REDIRECT + loginRequest.getRedirectUri());
         }

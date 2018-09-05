@@ -50,9 +50,7 @@ public class LoginRestController {
             throw new ValidationException("validation error");
         }
         
-        LoginResponse loginResponse = loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BEARER, loginRequest, response);
-        
-        return loginResponse;
+        return loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BEARER, loginRequest, response);
     }
 
     
