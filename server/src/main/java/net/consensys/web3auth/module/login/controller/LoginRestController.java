@@ -1,5 +1,6 @@
 package net.consensys.web3auth.module.login.controller;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ public class LoginRestController {
     } 
     
     @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody LoginResponse login(@RequestBody final LoginRequest loginRequest, BindingResult result) {
+    public @ResponseBody LoginResponse login(@RequestBody final LoginRequest loginRequest, 
+            BindingResult result, HttpServletResponse response) {
         log.debug("login(loginRequest: {})", loginRequest);
 
         // Check object
@@ -48,8 +50,9 @@ public class LoginRestController {
             throw new ValidationException("validation error");
         }
         
-        return loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BEARER, loginRequest);
+        LoginResponse loginResponse = loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BEARER, loginRequest, response);
         
+        return loginResponse;
     }
 
     

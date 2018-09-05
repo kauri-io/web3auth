@@ -43,6 +43,9 @@ public class LoginRequest {
 
     private String redirectUri;
     
+    /**
+     * Constructor to prepare the request (not validated)
+     */
     public LoginRequest(String appId, String clientId, String sentenceId, String redirectUri) {
         this.sentenceId = sentenceId;
         this.redirectUri = redirectUri;

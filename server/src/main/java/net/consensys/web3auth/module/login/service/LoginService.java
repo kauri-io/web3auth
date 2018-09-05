@@ -1,5 +1,7 @@
 package net.consensys.web3auth.module.login.service;
 
+import javax.servlet.http.HttpServletResponse;
+
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
@@ -19,5 +21,5 @@ public interface LoginService {
     
     LoginSentence init(String appId, String clientId, ClientType expectedClientType);
     
-    LoginResponse login(String appId, String clientId, ClientType expectedClientType, LoginRequest loginRequest);
+    LoginResponse login(String appId, String clientId, ClientType expectedClientType, LoginRequest loginRequest, HttpServletResponse response);
 }
