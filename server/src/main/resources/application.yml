@@ -1,5 +1,6 @@
 server:
   port: 8080
+  contextPath: /web3auth
 
 logging:
   level:

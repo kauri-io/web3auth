@@ -20,6 +20,7 @@ import org.web3j.protocol.core.methods.response.Log;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.module.authority.exception.SmartContractException;
+import rx.Subscription;
 import rx.functions.Action1;
 
 /**
@@ -57,7 +58,7 @@ public class SmartContractEventAuthorityService extends AbstractAuthorityService
                     DefaultBlockParameterName.LATEST, 
                     contractAddress);
 
-            web3j.ethLogObservable(filter)
+            Subscription subscription = web3j.ethLogObservable(filter)
                 .filter(e-> {
                     // Filter by events (only MemberEnabled and MemberDisabled)
                     if(!e.getTopics().get(0).equals(EVENT_MEMBER_ENABLED_HASH) && !e.getTopics().get(0).equals(EVENT_MEMBER_DISABLED_HASH)) {
@@ -86,6 +87,8 @@ public class SmartContractEventAuthorityService extends AbstractAuthorityService
                         }
                     }
                 });
+            
+            subscription.unsubscribe();
 
             log.debug("getOrganisation(address: {}): {}", address, orgs);
             return orgs;
