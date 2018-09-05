@@ -11,6 +11,11 @@ ethereum:
   node:
     url: ${ETHEREUM_RPC:http://localhost:8545}
     
+cors:
+  origins: "${CORS_ORIGIN:http://localhost:8080}"
+  methods: "${CORS_METHODS:GET,POST,PUT,OPTIONS,DELETE,PATCH}"
+  headers: "${CORS_HEADERS:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept,X-Auth-Token}"
+  credentials: "${CORS_CREDENTIALS:true}"
     
 web3-auth:      
   apps:            
