@@ -9,7 +9,6 @@ logging:
 ethereum:
   enable: true
   node:
-    protocol: ${ETHEREUM_RPC_PROTOCOL:HTTP}
     url: ${ETHEREUM_RPC:http://localhost:8545}
     
 cors:
