@@ -2,7 +2,6 @@ package net.consensys.web3auth.configuration;
 
 import java.net.ConnectException;
 import java.util.Objects;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
