@@ -1,7 +1,7 @@
 package net.consensys.web3auth.configuration;
 
 import java.net.ConnectException;
-
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -15,14 +15,15 @@ public class Web3jConfiguration {
     
     @Bean
     @ConditionalOnExpression("${ethereum.enable:true}")
-    Web3j web3j(@Value("${ethereum.node.url}") String url, @Value("${ethereum.node.protocol}") String protocol) throws ConnectException {
+    Web3j web3j(@Value("${ethereum.node.url}") String url) throws ConnectException {
+        Objects.requireNonNull(url, "ethereum.node.url cannot be null");
         
-        if(protocol.equals("WEB_SOCKET")) {
+        if(url.startsWith("ws")) { // WEBSOCKET
             WebSocketService web3jService = new WebSocketService(url, false);
             web3jService.connect();
             return Web3j.build(web3jService);
             
-        } else {
+        } else { // HTTP
             return Web3j.build(new HttpService(url));
         }
     } 
