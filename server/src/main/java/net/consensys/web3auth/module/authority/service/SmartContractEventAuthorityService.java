@@ -1,6 +1,5 @@
 package net.consensys.web3auth.module.authority.service;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +8,6 @@ import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Event;
 import org.web3j.abi.datatypes.generated.Bytes32;
 import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.protocol.Web3j;
@@ -20,6 +18,7 @@ import org.web3j.protocol.core.methods.response.Log;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.module.authority.exception.SmartContractException;
+import net.consensys.web3auth.module.authority.service.generated.Web3AuthPolicyI;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -30,20 +29,12 @@ import rx.functions.Action1;
 @Slf4j
 public class SmartContractEventAuthorityService extends AbstractAuthorityService implements AuthorityService {
 
-    private static final Event EVENT_MEMBER_ENABLED = new Event("MemberEnabled", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}, new TypeReference<Bytes32>() {}, new TypeReference<Uint8>() {}),
-            Arrays.<TypeReference<?>>asList());
-    private static final String EVENT_MEMBER_ENABLED_HASH = EventEncoder.encode(EVENT_MEMBER_ENABLED);
-
-    private static final Event EVENT_MEMBER_DISABLED = new Event("MemberDisabled", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>() {}, new TypeReference<Bytes32>() {}, new TypeReference<Uint8>() {}),
-            Arrays.<TypeReference<?>>asList());
-    private static final String EVENT_MEMBER_DISABLED_HASH = EventEncoder.encode(EVENT_MEMBER_DISABLED);
+    private static final String EVENT_MEMBER_ENABLED_HASH = EventEncoder.encode(Web3AuthPolicyI.MEMBERENABLED_EVENT);
+    private static final String EVENT_MEMBER_DISABLED_HASH = EventEncoder.encode(Web3AuthPolicyI.MEMBERDISABLED_EVENT);
 
     @Autowired
     public SmartContractEventAuthorityService(Web3j web3j, String contractAddress) {
         super(web3j, contractAddress);
-        
     }
 
     @Override
