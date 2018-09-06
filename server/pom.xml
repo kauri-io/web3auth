@@ -8,7 +8,7 @@
     </parent>
 
     <properties>
-        <web3j.version>3.4.0</web3j.version>
+        <web3j.version>3.5.0</web3j.version>
         <jjwt.version>0.5</jjwt.version>
     </properties>
 
@@ -67,32 +67,35 @@
     <build>
         <finalName>web3auth</finalName>
         <plugins>
-
-            <plugin>
-                <groupId>org.web3j</groupId>
-                <artifactId>web3j-maven-plugin</artifactId>
-                <version>0.2.0</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate-sources</goal>
-                        </goals>
-                        <configuration>
-                            <soliditySourceFiles>
-                                <directory>${basedir}/src/main/resources</directory>
-                                <includes>
-                                    <include>**/*.sol</include>
-                                </includes>
-                            </soliditySourceFiles>
-                            <sourceDestination>${basedir}/target/generated-sources/solidity</sourceDestination>
-                            <packageName>net.consensys.web3auth.smartcontract.generated</packageName>
-                            <nativeJavaType>true</nativeJavaType>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+        
+<!-- BROKEN -->   
+<!--             <plugin> -->
+<!--                 <groupId>org.web3j</groupId> -->
+<!--                 <artifactId>web3j-maven-plugin</artifactId> -->
+<!--                 <version>0.3.1</version> -->
+<!--                 <executions> -->
+<!--                     <execution> -->
+<!--                         <id>generate-sources</id> -->
+<!--                         <phase>generate-sources</phase> -->
+<!--                         <goals> -->
+<!--                             <goal>generate-sources</goal> -->
+<!--                         </goals> -->
+<!--                         <configuration> -->
+<!--                             <packageName>net.consensys.web3auth.smartcontract.generated</packageName> -->
+<!--                             <sourceDestination>/target/generated-sources/solidity</sourceDestination> -->
+<!--                             <nativeJavaType>true</nativeJavaType> -->
+<!--                             <outputFormat>java</outputFormat> -->
+<!--                             <soliditySourceFiles> -->
+<!--                                 <directory>/src/main/resources</directory> -->
+<!--                                 <includes> -->
+<!--                                     <include>**/*.sol</include> -->
+<!--                                 </includes> -->
+<!--                             </soliditySourceFiles> -->
+<!--                         </configuration> -->
+<!--                     </execution> -->
+<!--                 </executions> -->
+<!--             </plugin> -->
+            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
