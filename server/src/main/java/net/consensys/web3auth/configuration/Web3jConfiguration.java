@@ -1,14 +1,13 @@
 package net.consensys.web3auth.configuration;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.websocket.WebSocketService;
 
@@ -29,7 +28,7 @@ public class Web3jConfiguration {
         //////// WEBSOCKET ///////////////////////////////////
         if(url.startsWith("ws")) { 
             log.debug("WebSocket mode");
-            WebSocketService web3jService = new WebSocketService(url, false);
+            WebSocketService web3jService = new WebSocketService(url, true);
             web3jService.connect();
             web3j = Web3j.build(web3jService);
             
