@@ -36,7 +36,7 @@ public class AccountController {
             @RequestParam(name="get_organisations", required = false, defaultValue="true") boolean getOrganisation, 
             @RequestBody String token) {
         
-        log.debug("validateToken(appId: {}, token: {})", appId, token);
+        log.debug("validateToken(appId: {}, getOrganisation: {}, token: {})", appId, getOrganisation, token);
         
         Application application = applicationService.getApp(appId);
 
@@ -53,7 +53,7 @@ public class AccountController {
             @RequestParam(name="get_organisations", required = false, defaultValue="true") boolean getOrganisation, 
             @PathVariable String address) {
         
-        log.debug("getAccountDetails(appId: {}, address: {})", appId, address);
+        log.debug("getAccountDetails(appId: {}, getOrganisation: {}, address: {})", appId, getOrganisation, address);
         
         Application application = applicationService.getApp(appId);
 
