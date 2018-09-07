@@ -10,7 +10,7 @@ services:
       LOG_LEVEL: TRACE
       WEB3AUTH_CONF: classpath:/application.yml
       SPRING_DATA_MONGODB_HOST: mongodb
-      ETHEREUM_RPC: ws://eth-node:8546
+      ETHEREUM_RPC: wss://rinkeby.infura.io/ws
     depends_on:
       - truffle
     links:
@@ -38,32 +38,15 @@ services:
     networks:
       - default
       
-  eth-node:
-    image: gjeanmart/parity-dev-docker
-    ports:
-      - "8545:8545"
-    volumes:
-      - .ethereum_data:/root/.local/share/io.parity.ethereum
-      - .ethereum_log:/data/parity-logs
-    environment:
-      AMOUNT: 10
-      ACCOUNTS: 0xf0f15cedc719b5a55470877b0710d5c7816916b1,0x31b26E43651e9371C88aF3D36c14CfD938BaF4Fd
-    networks:
-      - default
-
-
   truffle:
     image: gjeanmart/truffle-docker
     ports:
       - "8888:8888"
     volumes:
       - /home/gjeanmart/workspace/kauri/prague/smart-contracts:/project
-    depends_on:
-      - parity
     environment:
-      CONTRACT_NAME: Community
       ACTION: migrate
-      NETWORK: docker
+      NETWORK: rinkeby
       API_PORT: 8888
       API_HOST: 0.0.0.0
     networks:

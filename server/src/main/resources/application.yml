@@ -1,15 +1,14 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   contextPath: /web3auth
 
 logging:
   level:
     net.consensys.web3auth: ${LOG_LEVEL:INFO}
+    org.web3j: ${LOG_LEVEL:INFO}
 
 ethereum:
-  enable: true
   node:
-    protocol: ${ETHEREUM_RPC_PROTOCOL:HTTP}
     url: ${ETHEREUM_RPC:http://localhost:8545}
     
 cors:
@@ -28,7 +27,7 @@ web3-auth:
       authoritySetting:
         enable: true
         smartContract: ${CONTRACT_ADDRESS:0xd0b8a3c5d18f66b82c9d883728ed8078757b4c2b}
-        mode: GETTER
+        mode: EVENT
 
       clients:
         - clientId: demo_client

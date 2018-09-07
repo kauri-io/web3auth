@@ -90,7 +90,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         log.trace("token found = {}", token.get());
         
         // Validate token
-        AccountDetails tokenDetails = this.web3AuthWSClient.getAccountByToken(token.get());
+        AccountDetails tokenDetails = this.web3AuthWSClient.getAccountByToken(token.get(), false);
         log.trace("tokenDetails = {}", tokenDetails);
 
         // Authorities

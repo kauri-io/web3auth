@@ -33,6 +33,7 @@ public class AccountController {
     @RequestMapping(value = "/token", method = RequestMethod.POST)
     public AccountDetails validateToken(
             @RequestParam(name="app_id", required = true) String appId, 
+            @RequestParam(name="get_organisations", required = false, defaultValue="true") boolean getOrganisation, 
             @RequestBody String token) {
         
         log.debug("validateToken(appId: {}, token: {})", appId, token);
@@ -43,12 +44,13 @@ public class AccountController {
         
         String address = JwtUtils.getUsernameFromToken(application.getJwtSetting(), token);
 
-        return this.getAccountDetails(appId, address);
+        return this.getAccountDetails(appId, getOrganisation, address);
     } 
     
     @RequestMapping(value = "/address/{address}", method = RequestMethod.GET)
     public AccountDetails getAccountDetails(
             @RequestParam(name="app_id", required = true) String appId, 
+            @RequestParam(name="get_organisations", required = false, defaultValue="true") boolean getOrganisation, 
             @PathVariable String address) {
         
         log.debug("getAccountDetails(appId: {}, address: {})", appId, address);
@@ -56,7 +58,7 @@ public class AccountController {
         Application application = applicationService.getApp(appId);
 
         Set<Organisation> organisations = null;
-        if(application.getAuthoritySetting().isEnable()) {
+        if(getOrganisation && application.getAuthoritySetting().isEnable()) {
             organisations = applicationService.getAuthorityService(appId).getOrganisation(address);
         }
         

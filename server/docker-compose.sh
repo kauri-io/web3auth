@@ -12,12 +12,12 @@ echo "Build"
 mvn clean install -f ../pom.xml $1
 [ $? -eq 0 ] || exit $?; 
 
-docker-compose build
+docker-compose -f $2 build
 [ $? -eq 0 ] || exit $?; 
 
 
 echo "Start"
-docker-compose up
+docker-compose -f $2 up 
 [ $? -eq 0 ] || exit $?; 
 
 
