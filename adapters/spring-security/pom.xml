@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.web3auth</groupId>
         <artifactId>web3auth-adapters</artifactId>
-        <version>0.0.13-SNAPSHOT</version>
+        <version>0.0.14-SNAPSHOT</version>
     </parent>
   
     <properties>
@@ -18,7 +18,7 @@
         <dependency>
         	<groupId>net.consensys.web3auth</groupId>
         	<artifactId>web3auth-common</artifactId>
-        	<version>0.0.13-SNAPSHOT</version>
+        	<version>0.0.14-SNAPSHOT</version>
         </dependency>
 
         <!-- Spring -->
