@@ -5,6 +5,8 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -17,7 +19,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import lombok.extern.slf4j.Slf4j;
 
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
 @EnableScheduling
 @EnableWebMvc
 @Slf4j
@@ -27,7 +29,7 @@ public class Web3AuthApplication  {
         SpringApplication.run(Web3AuthApplication .class, args);
     }
     
-
+    @SuppressWarnings("rawtypes")
     @EventListener
     public void handleContextRefresh(ContextRefreshedEvent event) {
         final Environment env = event.getApplicationContext().getEnvironment();

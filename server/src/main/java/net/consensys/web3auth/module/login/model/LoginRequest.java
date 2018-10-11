@@ -29,13 +29,8 @@ public class LoginRequest {
     @NotNull
     @Size(min=1)
     @JsonProperty("sentence_id")
-    private String sentenceId;
+    private String otsId;
 
-    @NotNull 
-    @Size(min=1)
-    @JsonProperty("app_id")
-    private String appId;
-    
     @NotNull 
     @Size(min=1)
     @JsonProperty("client_id")
@@ -46,10 +41,9 @@ public class LoginRequest {
     /**
      * Constructor to prepare the request (not validated)
      */
-    public LoginRequest(String appId, String clientId, String sentenceId, String redirectUri) {
-        this.sentenceId = sentenceId;
+    public LoginRequest(String clientId, String otsId, String redirectUri) {
+        this.otsId = otsId;
         this.redirectUri = redirectUri;
-        this.appId = appId;
         this.clientId = clientId;
     }
     

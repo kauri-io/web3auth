@@ -8,11 +8,11 @@
     			Client          = new require('node-rest-client').Client;
 
 
-
-    const _CONFIG ={
-    	"endpoint": "http://localhost:8080",
+    //"http://api.dev2.kauri.io/web3auth",
+    const _CONFIG = {
+    	"endpoint": "http://localhost:8080/web3auth",
     	"app_id": "demo",
-    	"client_id": "demo_service"
+    	"client_id": "demo_service", //"kauri-gateway"
     }; 
     const _ACCOUNT = {
     	"address": "0x00a329c0648769a73afac7f9381e08fb43dbea72",
@@ -67,9 +67,10 @@
                 } 
             };
 
-        	console.log(config.endpoint + "/api/login");
+        	console.log(config.endpoint + "/api/login?app_id="+config.app_id+"&client_id="+config.client_id);
         	console.log(args);
             client.post(config.endpoint + "/api/login", args, function (data, response) {
+                console.log(response);
                 resolve(data);
             });
         });
@@ -84,9 +85,7 @@
     	var loginData = await login(_CONFIG, _ACCOUNT, initData.id, signature);
     	console.log("loginData="+JSON.stringify(loginData));
     	
-
 	    assert(loginData.token != null);
-	    assert.strictEqual(loginData.app_id, _CONFIG.app_id);
 	    assert.strictEqual(loginData.client_id, _CONFIG.client_id);
 	    assert.strictEqual(loginData.address, _ACCOUNT.address);
     }

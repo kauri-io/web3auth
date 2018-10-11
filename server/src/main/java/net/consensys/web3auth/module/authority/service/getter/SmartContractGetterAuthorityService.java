@@ -1,27 +1,35 @@
 /**
  * 
  */
-package net.consensys.web3auth.module.authority.service;
+package net.consensys.web3auth.module.authority.service.getter;
 
 import java.math.BigInteger;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.web3j.protocol.Web3j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 
 import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.module.authority.exception.SmartContractException;
+import net.consensys.web3auth.module.authority.service.AbstractSmartContractAuthorityService;
+import net.consensys.web3auth.module.authority.service.AuthorityService;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
  */
-public class SmartContractGetterAuthorityService extends AbstractAuthorityService implements AuthorityService {
-
+@Service
+@ConditionalOnProperty(name = "web3auth.authority.mode", havingValue = "GETTER", matchIfMissing=false)
+public class SmartContractGetterAuthorityService extends AbstractSmartContractAuthorityService implements AuthorityService {
+    
     @Autowired
-    public SmartContractGetterAuthorityService(Web3j web3j, String contractAddress) {
-        super(web3j, contractAddress);
+    public SmartContractGetterAuthorityService(
+            @Value("${web3auth.authority.ethereum}") String ethereumNode,
+            @Value("${web3auth.authority.smartContract}") String smartContract) {
+        super(ethereumNode, smartContract);
     }
 
     @Override

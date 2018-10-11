@@ -20,7 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor @NoArgsConstructor
 @ToString
 @Document
-public class LoginSentence {
+public class OTS {
 
     @Id
     @Field("id")
@@ -47,7 +47,7 @@ public class LoginSentence {
     @JsonProperty("active")
     private boolean active;
     
-    public LoginSentence (String appId, String sentence, Long expiration) {
+    public OTS (String appId, String sentence, Long expiration) {
         this.id = UUID.randomUUID().toString();
         this.appId = appId;
         this.sentence = sentence;

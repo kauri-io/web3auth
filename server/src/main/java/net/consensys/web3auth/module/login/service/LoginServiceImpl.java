@@ -5,10 +5,9 @@ package net.consensys.web3auth.module.login.service;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.ClientType;
-import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
 import net.consensys.web3auth.module.application.service.ApplicationService;
 import net.consensys.web3auth.module.common.CookieUtils;
@@ -28,8 +26,8 @@ import net.consensys.web3auth.module.login.exception.SignatureException;
 import net.consensys.web3auth.module.login.exception.WrongClientTypeException;
 import net.consensys.web3auth.module.login.model.LoginRequest;
 import net.consensys.web3auth.module.login.model.LoginResponse;
-import net.consensys.web3auth.module.login.model.LoginSentence;
-import net.consensys.web3auth.module.login.service.ots.SentenceGeneratorService;
+import net.consensys.web3auth.module.login.model.OTS;
+import net.consensys.web3auth.module.login.service.ots.OTSGeneratorService;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
@@ -37,50 +35,49 @@ import net.consensys.web3auth.module.login.service.ots.SentenceGeneratorService;
  */
 @Service
 @Slf4j
-public class LoginServiceImpl implements LoginService{
+public class LoginServiceImpl implements LoginService {
 
-    protected final SentenceGeneratorService sentenceGeneratorService;
-    protected final ApplicationService applicationService;
+    private final OTSGeneratorService otsGeneratorService;
+    private final ApplicationService applicationService;
 
     @Autowired
-    protected LoginServiceImpl(SentenceGeneratorService sentenceGeneratorService, ApplicationService applicationService) {
-        this.sentenceGeneratorService = sentenceGeneratorService;
+    protected LoginServiceImpl(
+            OTSGeneratorService otsGeneratorService, 
+            ApplicationService applicationService) {
+        this.otsGeneratorService = otsGeneratorService;
         this.applicationService = applicationService;
     }
 
     @Override
-    public LoginSentence init(String appId, String clientId, ClientType expectedClientType) {
-        log.trace("init(appId: {}, clientId: {})", appId, clientId);
+    public OTS init(String clientId, ClientType expectedClientType) {
+        log.trace("init(clientId: {})", clientId);
 
-        Application application = this.getApplication(appId);
-        Client client = this.getClient(appId, clientId);
+        Client client = this.getClient(clientId);
 
         if(!client.getType().equals(expectedClientType)) {
             throw new WrongClientTypeException(clientId, client.getType(), expectedClientType);
         }
         
-        return sentenceGeneratorService.generateSentence(application.getAppId(),
-                client.getLoginSetting().getTimeout());
+        return otsGeneratorService.generateOTS(applicationService.getAppId());
     }
 
     @Override
-    public LoginResponse login(String appId, String clientId, ClientType expectedClientType, LoginRequest loginRequest, HttpServletResponse response) {
-        log.trace("login(application: {}, client: {}, loginRequest: {})", appId, clientId, loginRequest);
+    public LoginResponse login(String clientId, ClientType expectedClientType, LoginRequest loginRequest, HttpServletResponse response) {
+        log.trace("login(client: {}, loginRequest: {})", clientId, loginRequest);
 
-        Application application = this.getApplication(appId);
-        Client client = this.getClient(appId, clientId);
+        Client client = this.getClient(clientId);
 
         if(!client.getType().equals(expectedClientType)) {
             throw new WrongClientTypeException(clientId, client.getType(), expectedClientType);
         }
         
         // Get Sentence
-        Optional<LoginSentence> sentence = sentenceGeneratorService.getSentence(loginRequest.getSentenceId());
+        Optional<OTS> sentence = otsGeneratorService.getOTS(loginRequest.getOtsId());
         if (!sentence.isPresent()) {
-            throw new SentenceNotFoundException(loginRequest.getSentenceId());
+            throw new SentenceNotFoundException(loginRequest.getOtsId());
         }
         if (!sentence.get().isActive()) {
-            throw new SentenceExpiredException(loginRequest.getSentenceId());
+            throw new SentenceExpiredException(loginRequest.getOtsId());
         }
 
         // Check signature
@@ -96,28 +93,23 @@ public class LoginServiceImpl implements LoginService{
         }
         
         // Generate JWT
-        String token = JwtUtils.generateToken(application.getJwtSetting(), loginRequest.getAddress());
+        String token = JwtUtils.generateToken(applicationService.getJwt(), loginRequest.getAddress());
 
         // Disable the one-time sentence
-        sentenceGeneratorService.disableSentence(loginRequest.getSentenceId());
+        otsGeneratorService.disableOTS(loginRequest.getOtsId());
 
         // Set cookies
-        CookieUtils.addCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_TOKEN_NAME, token, JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), token), true);
-        CookieUtils.addCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_ADDRESS_NAME, loginRequest.getAddress(), JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), token), false);
+        CookieUtils.addCookie(applicationService.getCookie(), response, Constant.COOKIE_TOKEN_NAME, token, JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token), true);
+        CookieUtils.addCookie(applicationService.getCookie(), response, Constant.COOKIE_ADDRESS_NAME, loginRequest.getAddress(), JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token), false);
 
-        return new LoginResponse(loginRequest.getAppId(), loginRequest.getClientId(), loginRequest.getAddress(), token,
-                JwtUtils.getExpirationDateFromToken(application.getJwtSetting(), token));
+        return new LoginResponse(loginRequest.getClientId(), loginRequest.getAddress(), token,
+                JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token));
 
     }
 
     @Override
-    public Client getClient(String appId, String clientId) {
-        return applicationService.getClient(appId, clientId);
+    public Client getClient(String clientId) {
+        return applicationService.getClient(clientId);
     }
 
-    @Override
-    public Application getApplication(String appId) {
-        return applicationService.getApp(appId);
-    }
-    
 }

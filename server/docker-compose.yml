@@ -10,7 +10,7 @@ services:
       LOG_LEVEL: TRACE
       WEB3AUTH_CONF: classpath:/application.yml
       SPRING_DATA_MONGODB_HOST: mongodb
-      ETHEREUM_RPC: ws://eth-node:8546
+      ETHEREUM_RPC: http://eth-node:8545
     depends_on:
       - truffle
     links:
@@ -59,7 +59,7 @@ services:
     volumes:
       - /home/gjeanmart/workspace/kauri/prague/smart-contracts:/project
     depends_on:
-      - parity
+      - eth-node
     environment:
       CONTRACT_NAME: Community
       ACTION: migrate

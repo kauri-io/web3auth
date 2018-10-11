@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.ClientDetails;
-import net.consensys.web3auth.module.application.model.Application;
 import net.consensys.web3auth.module.application.model.Application.Client;
 import net.consensys.web3auth.module.application.service.ApplicationService;
 
@@ -26,17 +25,12 @@ public class ApplicationController {
     }
     
     @RequestMapping(value = "/{appId}", method = RequestMethod.GET)
-    public ClientDetails getApplicationDetails(
-            @PathVariable String appId, 
-            @RequestParam(name="clientId", required = true) String clientId) {
-        
+    public ClientDetails getApplicationDetails(@PathVariable String appId, @RequestParam(name="clientId", required = true) String clientId) {
         log.debug("getApplicationDetails(appId: {}, clientId: {})", appId, clientId);
         
-        Application application = applicationService.getApp(appId);
-        Client client = applicationService.getClient(appId, clientId);
+        Client client = applicationService.getClient(clientId);
 
-        
-        return new ClientDetails(application.getAppId(), client.getClientId(), client.getType());
+        return new ClientDetails(applicationService.getAppId(), client.getClientId(), client.getType());
     } 
     
 }

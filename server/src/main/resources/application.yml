@@ -6,46 +6,53 @@ logging:
   level:
     net.consensys.web3auth: ${LOG_LEVEL:INFO}
     org.web3j: ${LOG_LEVEL:INFO}
-
-ethereum:
-  node:
-    url: ${ETHEREUM_RPC:http://localhost:8545}
+   
     
-cors:
-  origins: "${CORS_ORIGIN:http://localhost:8080}"
-  methods: "${CORS_METHODS:GET,POST,PUT,OPTIONS,DELETE,PATCH}"
-  headers: "${CORS_HEADERS:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept,X-Auth-Token}"
-  credentials: "${CORS_CREDENTIALS:true}"
-    
-web3-auth:      
-  apps:            
-    - appId: demo
-      jwtSetting:
-        issuer: "demo"
-        secret: "secret!"
-        expiration: 2592000
-      authoritySetting:
-        enable: true
-        smartContract: ${CONTRACT_ADDRESS:0xd0b8a3c5d18f66b82c9d883728ed8078757b4c2b}
-        mode: EVENT
+web3auth:               
+  appId: demo
 
-      clients:
-        - clientId: demo_client
-          type: BROWSER
-          url: http://localhost:8081
-          loginSetting:
-            timeout: 60
-            cookieSetting:
-                path: "/"
-                domain: "localhost"
-                secure: false
-                
-        - clientId: demo_service
-          type: BEARER
-          url: http://localhost:8082
-          loginSetting:
-            timeout: 60
-            cookieSetting:
-                path: "/"
-                domain: "localhost"
-                secure: false
+  otp:
+    type: IN_MEMORY # IN_MEMORY or DB
+    dictionnary: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
+    length: 10
+    prefix: "Log in to kauri.io by signing this secret code: "
+    expiration: 60 # seconds
+    
+  jwt:
+    issuer: "demo"
+    secret: "secret!"
+    expiration: 2592000 # seconds
+    
+  cookie:
+     path: "/"
+     domain: "localhost"
+     secure: false
+      
+  authority:
+    mode: NONE # NONE | GETTER | EVENT | CACHE
+    ethereum: http://localhost:8545 # only for mode GETTER and EVENT
+    smartContract: 0x752dad129739df65e5a8949e50a63d231fbe8403 # only for mode GETTER and EVENT
+    kafkaAddress: localhost:9092 # only for mode CACHE
+    groupId: web3auth # only for mode CACHE
+    topic: contract-events # only for mode CACHE
+    
+
+  clients:
+    - clientId: demo_client
+      type: BROWSER
+      url: http://localhost:8081
+    
+    - clientId: demo_service
+      type: BEARER
+      url: http://localhost:8082
+      
+  cors:
+    origins: "${CORS_ORIGIN:http://localhost:8080}"
+    methods: "${CORS_METHODS:GET,POST,PUT,OPTIONS,DELETE,PATCH}"
+    headers: "${CORS_HEADERS:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept,X-Auth-Token}"
+    credentials: "${CORS_CREDENTIALS:true}"
+  
+  mongodb:
+    host: ${SPRING_DATA_MONGODB_HOST:localhost}
+    port: ${SPRING_DATA_MONGODB_PORT:27017}
+    database: ${SPRING_DATA_MONGODB_DATABASE:web3auth}      

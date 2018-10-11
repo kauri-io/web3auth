@@ -19,9 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.module.application.model.Application.Client;
+import net.consensys.web3auth.module.application.service.ApplicationService;
 import net.consensys.web3auth.module.common.CookieUtils;
 import net.consensys.web3auth.module.login.model.LoginRequest;
-import net.consensys.web3auth.module.login.model.LoginSentence;
+import net.consensys.web3auth.module.login.model.OTS;
 import net.consensys.web3auth.module.login.service.LoginService;
 
 @Controller
@@ -29,33 +30,33 @@ import net.consensys.web3auth.module.login.service.LoginService;
 @Slf4j
 public class LoginBrowserController {
     private static final String REDIRECT = "redirect:";
-    
+
+    private final ApplicationService applicationService;
     private final LoginService loginService;
     
     @Autowired
-    public LoginBrowserController(LoginService loginService) {
+    public LoginBrowserController(LoginService loginService, ApplicationService applicationService) {
         this.loginService = loginService;
+        this.applicationService = applicationService;
     }
     
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public ModelAndView init(
-            @RequestParam(name="app_id", required = true) String appId,
             @RequestParam(name="client_id", required = true) String clientId,
             @RequestParam(name="redirect_uri", required = false) String redirectUri, 
             final ModelMap model,
             HttpServletRequest request) {
         
-        log.debug("loginPage(appId: {}, clientId:{}, redirectUri: {})", appId, clientId, redirectUri);
+        log.debug("loginPage(clientId:{}, redirectUri: {})", clientId, redirectUri);
 
         // Generate and store random sentence
-        LoginSentence sentence = loginService.init(appId, clientId, ClientType.BROWSER);
+        OTS sentence = loginService.init(clientId, ClientType.BROWSER);
 
-        model.addAttribute("app_id", appId);
         model.addAttribute("redirect_uri", redirectUri);
         
         return new ModelAndView("login", model)
                 .addObject("sentence", sentence.getSentence())
-                .addObject("loginRequest", new LoginRequest(appId, clientId, sentence.getId(), redirectUri));
+                .addObject("loginRequest", new LoginRequest(clientId, sentence.getId(), redirectUri));
     } 
     
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -71,13 +72,11 @@ public class LoginBrowserController {
             throw new ValidationException("validation error");
         }
         
-        loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BROWSER, loginRequest, response);
+        loginService.login(loginRequest.getClientId(), ClientType.BROWSER, loginRequest, response);
 
         // Redirect
         if(StringUtils.isEmpty(loginRequest.getRedirectUri())) {
-            Client client = this.loginService.getClient(
-                    loginRequest.getAppId(), 
-                    loginRequest.getClientId());
+            Client client = this.loginService.getClient(loginRequest.getClientId());
             
             return new ModelAndView(REDIRECT + client.getUrl()); 
         } else {
@@ -91,11 +90,11 @@ public class LoginBrowserController {
             @RequestParam(name="client_id", required = true) String clientId,
             @RequestParam(name="redirect_uri", required = false) String redirectUri, HttpServletResponse response, final ModelMap model)  {
         
-        Client client = loginService.getClient(appId, clientId);
+        Client client = loginService.getClient(clientId);
         
         // Delete cookies
-        CookieUtils.deleteCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_TOKEN_NAME);
-        CookieUtils.deleteCookie(client.getLoginSetting().getCookieSetting(), response, Constant.COOKIE_ADDRESS_NAME);
+        CookieUtils.deleteCookie(applicationService.getCookie(), response, Constant.COOKIE_TOKEN_NAME);
+        CookieUtils.deleteCookie(applicationService.getCookie(), response, Constant.COOKIE_ADDRESS_NAME);
         
         // Redirect
         if(StringUtils.isEmpty(redirectUri)) {

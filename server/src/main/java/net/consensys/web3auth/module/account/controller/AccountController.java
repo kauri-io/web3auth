@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.AccountDetails;
 import net.consensys.web3auth.common.dto.Organisation;
-import net.consensys.web3auth.module.application.model.Application;
-import net.consensys.web3auth.module.application.service.ApplicationService;
+import net.consensys.web3auth.configuration.Web3AuthConfiguration;
+import net.consensys.web3auth.module.authority.service.AuthorityService;
 import net.consensys.web3auth.module.common.JwtUtils;
 
 @RestController
@@ -22,11 +22,13 @@ import net.consensys.web3auth.module.common.JwtUtils;
 @Slf4j
 public class AccountController {
 
-    private final ApplicationService applicationService;
-
+    private final Web3AuthConfiguration web3AuthConfiguration;
+    private final AuthorityService authorityService;
+    
     @Autowired
-    public AccountController(ApplicationService applicationService) {
-        this.applicationService = applicationService;
+    public AccountController(Web3AuthConfiguration web3AuthConfiguration, AuthorityService authorityService) {
+        this.web3AuthConfiguration = web3AuthConfiguration;
+        this.authorityService = authorityService;
     }
     
     
@@ -38,11 +40,9 @@ public class AccountController {
         
         log.debug("validateToken(appId: {}, getOrganisation: {}, token: {})", appId, getOrganisation, token);
         
-        Application application = applicationService.getApp(appId);
-
-        JwtUtils.validateToken(application.getJwtSetting(), token);
+        JwtUtils.validateToken(web3AuthConfiguration.getJwt(), token);
         
-        String address = JwtUtils.getUsernameFromToken(application.getJwtSetting(), token);
+        String address = JwtUtils.getUsernameFromToken(web3AuthConfiguration.getJwt(), token);
 
         return this.getAccountDetails(appId, getOrganisation, address);
     } 
@@ -55,13 +55,14 @@ public class AccountController {
         
         log.debug("getAccountDetails(appId: {}, getOrganisation: {}, address: {})", appId, getOrganisation, address);
         
-        Application application = applicationService.getApp(appId);
-
         Set<Organisation> organisations = null;
-        if(getOrganisation && application.getAuthoritySetting().isEnable()) {
-            organisations = applicationService.getAuthorityService(appId).getOrganisation(address);
+        if(getOrganisation) {
+            organisations = authorityService.getOrganisation(address);
         }
         
-        return new AccountDetails(address, organisations);
+        AccountDetails account = new AccountDetails(address, organisations);
+        log.debug("getAccountDetails(appId: {}, getOrganisation: {}, address: {}) {}", appId, getOrganisation, address, account);
+ 
+        return account;
     } 
 }
