@@ -11,20 +11,19 @@ import net.consensys.web3auth.common.dto.ClientType;
 public class Application {
 
     private String appId;
-    private JwtSetting jwtSetting;
-    private AuthoritySetting authoritySetting;
+    private OTSSetting ots;
+    private JwtSetting jwt;
+    private CookieSetting cookie;
+    private AuthoritySetting authority;
     private List<Client> clients;
-    
+       
     @Data
-    public static class AuthoritySetting {
-        private boolean enable;
-        private SmartContractMode mode;
-        private String smartContract;
-        
+    public static class OTSSetting {
+        private String dictionnary;
+        private int length;
+        private String prefix;
+        private long expiration;
     }
-    
-    public enum SmartContractMode {GETTER, EVENT}
-    
     
     @Data
     public static class JwtSetting {
@@ -32,29 +31,33 @@ public class Application {
         private String secret;
         private Long expiration;
     }
+
+    @Data
+    public static class AuthoritySetting {
+        public enum SmartContractMode {NONE, GETTER, EVENT, CACHE}
+        
+        private SmartContractMode mode;
+        private String ethereum;
+        private String smartContract; 
+        private String kafkaAddress;
+        private String groupId;
+        private String topic;
+    }
+    
+    @Data
+    public static class CookieSetting {
+        private String jwtCookie;
+        private String userCookie;
+        private String path;
+        private String domain;
+        private boolean secure;
+    }
+    
     
     @Data
     public static class Client {
         private String clientId;
         private ClientType type;
         private String url;
-        private Loginetting loginSetting;
     } 
-    
-    @Data
-    public static class Loginetting {
-        private Long timeout;
-        private CookieSetting cookieSetting;
-    }
-    
-    @Data
-    public static class CookieSetting {
-        
-        private String jwtCookie;
-        private String userCookie;
-        private String path;
-        private String domain;
-        private boolean secure;
-        
-    }
 }

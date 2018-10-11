@@ -48,13 +48,13 @@ public class CorsFilter extends OncePerRequestFilter {
 
     public static final String WILDCARD = "*";
 
-    @Value("#{'${cors.origins}'.split(',')}")
+    @Value("#{'${web3auth.cors.origins}'.split(',')}")
     public List<String> allowedOrigin;
-    @Value("#{'${cors.methods}'.split(',')}")
+    @Value("#{'${web3auth.cors.methods}'.split(',')}")
     public List<String> allowedMethods;
-    @Value("#{'${cors.headers}'.split(',')}")
+    @Value("#{'${web3auth.cors.headers}'.split(',')}")
     public List<String> allowedHeaders;
-    @Value("${cors.credentials}") 
+    @Value("${web3auth.cors.credentials}") 
     public boolean allowCredentials;
     
     private int maxAge = 3600;

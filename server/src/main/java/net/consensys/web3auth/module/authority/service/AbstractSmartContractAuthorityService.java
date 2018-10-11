@@ -3,24 +3,28 @@
  */
 package net.consensys.web3auth.module.authority.service;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.protocol.websocket.WebSocketService;
 import org.web3j.tx.ClientTransactionManager;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.web3auth.module.authority.service.generated.Web3AuthPolicyI;
+import net.consensys.web3auth.module.authority.generated.Web3AuthPolicyI;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
  */
 @Slf4j
-public abstract class AbstractAuthorityService {
+public abstract class AbstractSmartContractAuthorityService {
 
     private static final String FROM_ADDRESS = "0x87c5e802ecc299b85946f61cd3dc16b5fda929b8"; // Random ...
     private static final BigInteger GAS_PRICE = new BigInteger("0");
@@ -29,10 +33,41 @@ public abstract class AbstractAuthorityService {
     protected final Web3j web3j;
     protected final String contractAddress;
     
-    public AbstractAuthorityService(Web3j web3j, String contractAddress) {
-        this.web3j = web3j;
-        this.contractAddress = contractAddress;
+    public AbstractSmartContractAuthorityService(String ethereumUrl, String contractAddress) {
+        try {
+            this.web3j = connect(ethereumUrl);
+            this.contractAddress = contractAddress;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+    
+    protected Web3j connect(String url) throws IOException {
+        Objects.requireNonNull(url, "ethereum url cannot be null");
+        
+        log.debug("Connecting to Ethereum node {}...",url);
+        Web3j web3j;
+        
+        //////// WEBSOCKET ///////////////////////////////////
+        if(url.startsWith("ws")) { 
+            log.debug("WebSocket mode");
+            WebSocketService web3jService = new WebSocketService(url, true);
+            web3jService.connect();
+            web3j = Web3j.build(web3jService);
+            
+        //////// HTTP ///////////////////////////////////
+        } else { 
+            log.debug("HTTP mode");
+            web3j = Web3j.build(new HttpService(url));
+        }
+
+        if(log.isDebugEnabled()) {
+            String clientVersion = web3j.web3ClientVersion().send().getWeb3ClientVersion();
+            log.debug("Connected to Ethereum node {} : {}", url, clientVersion);
+        }
+        
+        return web3j;
+    } 
     
     protected Web3AuthPolicyI loadContract() {
         log.trace("Loading contract {}", contractAddress);
@@ -40,11 +75,11 @@ public abstract class AbstractAuthorityService {
     }
     
     protected static List<String> bytes32ListToStringList(List<byte[]> bytes32List) {
-        return bytes32List.stream().map(AbstractAuthorityService::bytes32ToString).collect(Collectors.toList());
+        return bytes32List.stream().map(AbstractSmartContractAuthorityService::bytes32ToString).collect(Collectors.toList());
     }
     
     protected static Set<String> bytes32ListToStringSet(Set<byte[]> result) {
-        return result.stream().map(AbstractAuthorityService::bytes32ToString).collect(Collectors.toSet());
+        return result.stream().map(AbstractSmartContractAuthorityService::bytes32ToString).collect(Collectors.toSet());
     }
     
     protected static String bytes32ToString(byte[] bytes32) {
@@ -70,7 +105,7 @@ public abstract class AbstractAuthorityService {
     
 
     
-    protected static String remove0x(String str) {
+    public static String remove0x(String str) {
         if(!str.startsWith("0x")) {
             return str;
         }

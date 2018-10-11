@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.module.login.model.LoginRequest;
 import net.consensys.web3auth.module.login.model.LoginResponse;
-import net.consensys.web3auth.module.login.model.LoginSentence;
+import net.consensys.web3auth.module.login.model.OTS;
 import net.consensys.web3auth.module.login.service.LoginService;
 
 @RestController
@@ -32,12 +32,11 @@ public class LoginRestController {
     }
     
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody LoginSentence init(
-            @RequestParam(name="app_id", required = true) String appId,
+    public @ResponseBody OTS init(
             @RequestParam(name="client_id", required = true) String clientId) {
-        log.debug("init(appId: {}, clientId: {})", appId, clientId);
+        log.debug("init(clientId: {})",  clientId);
         
-        return loginService.init(appId, clientId, ClientType.BEARER);
+        return loginService.init(clientId, ClientType.BEARER);
     } 
     
     @RequestMapping(method = RequestMethod.POST)
@@ -50,7 +49,7 @@ public class LoginRestController {
             throw new ValidationException("validation error");
         }
         
-        return loginService.login(loginRequest.getAppId(), loginRequest.getClientId(), ClientType.BEARER, loginRequest, response);
+        return loginService.login(loginRequest.getClientId(), ClientType.BEARER, loginRequest, response);
     }
 
     

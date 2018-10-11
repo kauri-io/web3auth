@@ -1,4 +1,4 @@
-package net.consensys.web3auth.module.authority.service.generated;
+package net.consensys.web3auth.module.authority.generated;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

@@ -15,9 +15,6 @@ import lombok.ToString;
 @ToString
 public class LoginResponse {
 
-    @JsonProperty("app_id")
-    private String appId;
-
     @JsonProperty("client_id")
     private String clientId;
 
