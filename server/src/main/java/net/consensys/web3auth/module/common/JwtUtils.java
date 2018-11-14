@@ -8,7 +8,9 @@ import java.util.function.Function;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.module.application.model.Application.JwtSetting;
 import net.consensys.web3auth.module.common.exception.TokenException;
@@ -47,7 +49,7 @@ public class JwtUtils {
         try {
             Jwts.parser().setSigningKey(jwtSetting.getSecret()).parseClaimsJws(token);
             return true;
-        } catch (IllegalArgumentException|ExpiredJwtException e) {
+        } catch (ExpiredJwtException|MalformedJwtException|SignatureException e) {
             throw new TokenException(token, e.getMessage());
         } 
     }
