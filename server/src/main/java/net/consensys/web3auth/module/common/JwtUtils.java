@@ -11,8 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.module.application.model.Application.JwtSetting;
-import net.consensys.web3auth.module.common.exception.ExpiredTokenException;
-import net.consensys.web3auth.module.common.exception.InvalidTokenException;
+import net.consensys.web3auth.module.common.exception.TokenException;
 
 @Slf4j
 public class JwtUtils {
@@ -48,12 +47,9 @@ public class JwtUtils {
         try {
             Jwts.parser().setSigningKey(jwtSetting.getSecret()).parseClaimsJws(token);
             return true;
-        } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException(e);
-        } catch (ExpiredJwtException e) {
-            log.warn("the token is expired and not valid anymore", e);
-            throw new ExpiredTokenException(e);
-        }
+        } catch (IllegalArgumentException|ExpiredJwtException e) {
+            throw new TokenException(token, e.getMessage());
+        } 
     }
    
     /**
