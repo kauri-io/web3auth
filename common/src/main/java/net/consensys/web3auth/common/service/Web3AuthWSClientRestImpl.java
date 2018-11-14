@@ -4,6 +4,7 @@ import org.springframework.web.client.RestTemplate;
 
 import net.consensys.web3auth.common.dto.AccountDetails;
 import net.consensys.web3auth.common.dto.ClientDetails;
+import net.consensys.web3auth.common.dto.exception.APIErrorHandler;
 
 public class Web3AuthWSClientRestImpl implements Web3AuthWSClient {
 
@@ -16,7 +17,9 @@ public class Web3AuthWSClientRestImpl implements Web3AuthWSClient {
         this.appId = appId;
         this.clientId = clientId;
         this.authEndpoint = endpoint;
+        
         this.restTemplate = new RestTemplate();
+        this.restTemplate.setErrorHandler(new APIErrorHandler());
     }
     
     @Override

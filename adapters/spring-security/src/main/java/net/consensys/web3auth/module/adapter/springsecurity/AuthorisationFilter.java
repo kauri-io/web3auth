@@ -23,10 +23,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
+import net.consensys.web3auth.common.dto.AccountDetails;
 import net.consensys.web3auth.common.dto.ClientDetails;
 import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.common.dto.Organisation;
-import net.consensys.web3auth.common.dto.AccountDetails;
+import net.consensys.web3auth.common.dto.exception.HTTPClientException;
 import net.consensys.web3auth.common.service.Web3AuthWSClient;
 
 @Slf4j
@@ -90,7 +91,18 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         log.trace("token found = {}", token.get());
         
         // Validate token
-        AccountDetails tokenDetails = this.web3AuthWSClient.getAccountByToken(token.get(), false);
+        AccountDetails tokenDetails = null;
+        try {
+            tokenDetails = this.web3AuthWSClient.getAccountByToken(token.get(), false);
+        } catch (HTTPClientException ex) {
+            log.warn("Error while validating the token: {}", ex.getMessage());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+            return;
+        } catch(Exception ex) {
+            log.error("Erro while validating the token: {}", ex.getMessage(), ex);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+            return;
+        }
         log.trace("tokenDetails = {}", tokenDetails);
 
         // Authorities
