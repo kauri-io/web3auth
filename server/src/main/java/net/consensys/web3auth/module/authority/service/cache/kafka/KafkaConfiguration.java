@@ -3,6 +3,7 @@ package net.consensys.web3auth.module.authority.service.cache.kafka;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,4 +53,10 @@ public class KafkaConfiguration {
         factory.setConcurrency(1);
         return factory;
     }
+    
+    @Bean
+    public NewTopic topic() {
+        return new NewTopic(topic, 3, Short.parseShort("1"));
+    }
+    
 }
