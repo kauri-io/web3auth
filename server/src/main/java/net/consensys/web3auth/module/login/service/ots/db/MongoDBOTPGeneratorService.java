@@ -53,16 +53,21 @@ public class MongoDBOTPGeneratorService implements OTSGeneratorService {
 
     @Override
     public Optional<OTS> getOTS(String id) {
-        return Optional.ofNullable(repository.findOne(id));
+        return repository.findById(id);
     }
 
     @Override
     public void disableOTS(String id) {
         log.debug("disableOTS(id: {})", id);
         
-        OTS ots = repository.findOne(id);
-        ots.setActive(false);
-        repository.save(ots);
+        Optional<OTS> ots = repository.findById(id);
+
+        if (ots.isPresent()) {
+            ots.get().setActive(false);
+            repository.save(ots.get());
+        } else {
+            log.error("Attempting to disable OTS that doesn't exist, with id: {}", id);
+        }
     }
 
     @Override
