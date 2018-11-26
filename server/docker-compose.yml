@@ -53,16 +53,17 @@ services:
 
 
   truffle:
-    image: gjeanmart/truffle-docker
+    image: gjeanmart/truffle-docker:latest
     ports:
-      - "8888:8888"
+      - "8888:8888"    
     volumes:
-      - /home/gjeanmart/workspace/kauri/prague/smart-contracts:/project
+      - ${GITHUB_SSH_PRIVATE_KEY}:/root/.ssh/id_rsa
+      - ${GITHUB_SSH_PUBLIC_KEY}:/root/.ssh/id_rsa.pub
     depends_on:
       - eth-node
     environment:
-      CONTRACT_NAME: Community
-      ACTION: migrate
+      GIT_URL: git@github.com:kauri-io/kauri-smart-contracts.git
+      GIT_BRANCH: dev2
       NETWORK: docker
       API_PORT: 8888
       API_HOST: 0.0.0.0
