@@ -7,4 +7,4 @@ ADD target/web3auth-exec.jar app.jar
 RUN apt-get update && apt-get install -y curl jq && apt-get clean
 
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar", "--spring.config.location=${WEB3AUTH_CONF}"]
+CMD ["java", "-jar", "app.jar", "--spring.config.additional-location=${WEB3AUTH_CONF}"]
