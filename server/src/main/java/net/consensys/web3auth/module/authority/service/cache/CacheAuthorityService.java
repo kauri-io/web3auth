@@ -6,10 +6,12 @@ package net.consensys.web3auth.module.authority.service.cache;
 import static net.consensys.web3auth.module.authority.service.AbstractSmartContractAuthorityService.remove0x;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +52,8 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
             Organisation org =  new Organisation(organisation, role);
             
             UserDomain user;
-            if(repository.exists(account)) {
-                user = repository.findOne(account);
+            if(repository.existsById(account)) {
+                user = repository.findById(account).get();
                 if(!user.getOrgs().add(org)) {
                     user.getOrgs().remove(org);
                     user.getOrgs().add(org);
@@ -68,10 +70,11 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
     
     @Override
     public Set<Organisation> getOrganisation(String address) {
-        if(!repository.exists(remove0x(address.toLowerCase()))) {
+        Optional<UserDomain> userDomain = repository.findById(remove0x(address.toLowerCase()));
+        if(!userDomain.isPresent()) {
             return Collections.emptySet();
         }
 
-        return repository.findOne(remove0x(address.toLowerCase())).getOrgs();
+        return userDomain.get().getOrgs();
     }
 }

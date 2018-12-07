@@ -4,8 +4,8 @@
 package net.consensys.web3auth.configuration;
 
 import org.apache.tomcat.util.http.LegacyCookieProcessor;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,14 +17,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class WebConfiguration {
-    
+
     @Bean
-    public EmbeddedServletContainerCustomizer customizer() {
-        return container -> {
-            if (container instanceof TomcatEmbeddedServletContainerFactory) {
-                TomcatEmbeddedServletContainerFactory tomcat = (TomcatEmbeddedServletContainerFactory) container;
-                tomcat.addContextCustomizers(context -> context.setCookieProcessor(new LegacyCookieProcessor()));
-            }
-        };
+    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> customizer() {
+        return container ->
+                container.addContextCustomizers(context -> context.setCookieProcessor(new LegacyCookieProcessor()));
     }
 }
