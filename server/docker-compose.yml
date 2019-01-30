@@ -3,7 +3,7 @@ services:
 
   web3auth:
     build: ./
-    image: kauriorg/web3auth
+    image: kauriorg/web3auth:snapshot
     ports:
     - "8080:8080"
     environment:

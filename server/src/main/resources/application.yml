@@ -56,4 +56,5 @@ web3auth:
   mongodb:
     host: ${SPRING_DATA_MONGODB_HOST:localhost}
     port: ${SPRING_DATA_MONGODB_PORT:27017}
+    uri: ${SPRING_DATA_MONGODB_URI:#{null}} 
     database: ${SPRING_DATA_MONGODB_DATABASE:web3auth}      

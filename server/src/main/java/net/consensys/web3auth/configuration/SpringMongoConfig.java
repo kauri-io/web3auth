@@ -9,12 +9,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.util.StringUtils;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableMongoRepositories("net.consensys.web3auth.module")
 @ConditionalOnProperty(name = "web3auth.otp.type", havingValue = "DB")
+@Slf4j
 public class SpringMongoConfig extends AbstractMongoConfiguration {
     
     @Value("${spring.profiles.active:default}")
@@ -26,13 +31,21 @@ public class SpringMongoConfig extends AbstractMongoConfiguration {
     @Value("${web3auth.mongodb.port:27017}")
     private String mongoPort;
 
+    @Value("${web3auth.mongodb.uri:#{null}}")
+    private String mongoUri;
+
     @Value("${web3auth.mongodb.database:web3auth}")
     private String mongoDB;
     
     @Override
     @Bean
     public MongoClient mongoClient() {
-        return new MongoClient(mongoHost + ":" + mongoPort);
+        if(StringUtils.isEmpty(mongoUri)) {
+            return new MongoClient(mongoHost + ":" + mongoPort);
+        } else {
+            return new MongoClient(new MongoClientURI(mongoUri));
+            
+        }
     }
     
     @Override
