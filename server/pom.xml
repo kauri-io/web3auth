@@ -86,7 +86,7 @@
                         </goals>
                         <configuration>
                             <packageName>net.consensys.web3auth.smartcontract.generated</packageName>
-                            <sourceDestination>${basedir}/target/generated-sources/contracts</sourceDestination>
+                            <sourceDestination>${basedir}/src/main/java</sourceDestination>
                             <nativeJavaType>true</nativeJavaType>
                             <outputFormat>java</outputFormat>
                             <soliditySourceFiles>
@@ -111,7 +111,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${basedir}/target/generated-sources/contracts</source>
+                                <source>${basedir}/src/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
