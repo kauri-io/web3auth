@@ -70,5 +70,36 @@
             <url>https://api.bintray.com/maven/consensys/kauri/web3auth/;publish=1</url>
         </repository>
     </distributionManagement>
+    
+
+
+    <repositories>
+        <repository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
+        <repository>
+            <id>ethereum</id>
+            <url>https://dl.bintray.com/ethereum/maven/</url>
+        </repository>
+        <repository>
+            <id>bintray-consensys-kauri</id>
+            <url>https://consensys.bintray.com/kauri</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-releases</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>ethereum</id>
+            <url>https://dl.bintray.com/ethereum/maven/</url>
+        </pluginRepository>
+        <pluginRepository>
+          <id>bintray-consensys-kauri</id>
+          <url>https://consensys.bintray.com/kauri</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

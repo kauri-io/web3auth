@@ -11,7 +11,7 @@ import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.generated.Bytes32;
+import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.abi.datatypes.generated.Uint8;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.EthFilter;
@@ -20,9 +20,9 @@ import org.web3j.protocol.core.methods.response.Log;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.module.authority.exception.SmartContractException;
-import net.consensys.web3auth.module.authority.generated.Web3AuthPolicyI;
 import net.consensys.web3auth.module.authority.service.AbstractSmartContractAuthorityService;
 import net.consensys.web3auth.module.authority.service.AuthorityService;
+import net.consensys.web3auth.smartcontract.generated.Web3AuthPolicyI;
 import rx.Subscription;
 
 /**
@@ -34,8 +34,8 @@ import rx.Subscription;
 @ConditionalOnProperty(name = "web3auth.authority.mode", havingValue = "EVENT", matchIfMissing=false)
 public class SmartContractEventAuthorityService extends AbstractSmartContractAuthorityService implements AuthorityService {
 
-    private static final String EVENT_MEMBER_ENABLED_HASH = EventEncoder.encode(Web3AuthPolicyI.MEMBERENABLED_EVENT);
-    private static final String EVENT_MEMBER_DISABLED_HASH = EventEncoder.encode(Web3AuthPolicyI.MEMBERDISABLED_EVENT);
+    private static final String EVENT_MEMBER_ADDED_HASH = EventEncoder.encode(Web3AuthPolicyI.MEMBERADDED_EVENT);
+    private static final String EVENT_MEMBER_REMOVED_HASH = EventEncoder.encode(Web3AuthPolicyI.MEMBERREMOVED_EVENT);
 
     @Autowired
     public SmartContractEventAuthorityService(
@@ -60,7 +60,7 @@ public class SmartContractEventAuthorityService extends AbstractSmartContractAut
             Subscription subscription = web3j.ethLogObservable(filter)
                 .filter(e-> {
                     // Filter by events (only MemberEnabled and MemberDisabled)
-                    if(!e.getTopics().get(0).equals(EVENT_MEMBER_ENABLED_HASH) && !e.getTopics().get(0).equals(EVENT_MEMBER_DISABLED_HASH)) {
+                    if(!e.getTopics().get(0).equals(EVENT_MEMBER_ADDED_HASH) && !e.getTopics().get(0).equals(EVENT_MEMBER_REMOVED_HASH)) {
                         return false;
                     }
                     // Filter by user address
@@ -71,14 +71,14 @@ public class SmartContractEventAuthorityService extends AbstractSmartContractAut
                         String eventHash = event.getTopics().get(0);
                         Organisation org = convert(event);
  
-                        if(eventHash.equals(EVENT_MEMBER_ENABLED_HASH)) {
+                        if(eventHash.equals(EVENT_MEMBER_ADDED_HASH)) {
                             log.debug("memberEnabled for {}", org);
                             if(orgs.contains(org)) {
                                 orgs.remove(org);
                             }
                             orgs.add(org);
                             
-                        } else if(eventHash.equals(EVENT_MEMBER_DISABLED_HASH)) {
+                        } else if(eventHash.equals(EVENT_MEMBER_REMOVED_HASH)) {
                             log.debug("memberDisabled for {}", org);
                             orgs.remove(org);
                         }
@@ -96,10 +96,10 @@ public class SmartContractEventAuthorityService extends AbstractSmartContractAut
     }
     
     private static Organisation convert(Log event) {
-        Bytes32 org = (Bytes32) FunctionReturnDecoder.decodeIndexedValue(event.getTopics().get(2), new TypeReference<Bytes32>() {});
+    	Uint256 org = (Uint256) FunctionReturnDecoder.decodeIndexedValue(event.getTopics().get(2), new TypeReference<Uint256>() {});
         Uint8 role = (Uint8) FunctionReturnDecoder.decodeIndexedValue(event.getTopics().get(3), new TypeReference<Uint8>() {});
 
-        return new Organisation(bytes32ToString(org.getValue()), role.getValue().intValue());
+        return new Organisation(org.getTypeAsString(), role.getValue().intValue());
     }
 
 }
