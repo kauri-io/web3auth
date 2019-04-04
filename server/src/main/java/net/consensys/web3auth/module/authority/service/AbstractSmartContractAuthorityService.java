@@ -17,7 +17,7 @@ import org.web3j.protocol.websocket.WebSocketService;
 import org.web3j.tx.ClientTransactionManager;
 
 import lombok.extern.slf4j.Slf4j;
-import net.consensys.web3auth.module.authority.generated.Web3AuthPolicyI;
+import net.consensys.web3auth.smartcontract.generated.Web3AuthPolicyI;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>

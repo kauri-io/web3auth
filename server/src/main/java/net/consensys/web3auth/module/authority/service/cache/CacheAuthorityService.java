@@ -11,16 +11,15 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.Organisation;
-import net.consensys.web3auth.module.authority.generated.Web3AuthPolicyI;
 import net.consensys.web3auth.module.authority.service.AuthorityService;
 import net.consensys.web3auth.module.authority.service.cache.db.UserDomain;
 import net.consensys.web3auth.module.authority.service.cache.db.UserRepository;
 import net.consensys.web3auth.module.authority.service.cache.kafka.event.ContractEventDetails;
+import net.consensys.web3auth.smartcontract.generated.Web3AuthPolicyI;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
@@ -42,8 +41,8 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
     public void onEvent(ContractEventDetails contractEvent) {
         
         // Filter by event name (MemberEnabled or MemberDisabled)
-        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERENABLED_EVENT.getName())
-                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERDISABLED_EVENT.getName())) {
+        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
+                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
             
             String account = remove0x(contractEvent.getIndexedParameters().get(0).getValueString()).toLowerCase();
             String organisation = contractEvent.getIndexedParameters().get(1).getValueString();

@@ -6,7 +6,7 @@ version: 2
 jobs:
   build-and-test:
     docker:
-      - image: gjeanmart/openjdk8-mvn-solc
+      - image: gjeanmart/openjdk8-mvn-solc:latest
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
@@ -32,7 +32,7 @@ jobs:
 
   release-snapshot:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: gjeanmart/openjdk8-mvn-solc:latest
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
@@ -56,7 +56,7 @@ jobs:
 
   release:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: gjeanmart/openjdk8-mvn-solc:latest
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
@@ -69,7 +69,7 @@ jobs:
 
   update-dev-branch:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: gjeanmart/openjdk8-mvn-solc:latest
     working_directory: ~/repo
     environment:
       # Customize the JVM maximum heap limit
