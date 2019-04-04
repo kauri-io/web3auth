@@ -44,7 +44,8 @@ jobs:
           command: mvn -s ./.circleci/.circleci.settings.xml -DskipTests deploy
 
   release-docker-image:
-    machine: true
+    docker:
+      - image: gjeanmart/openjdk8-mvn-solc:latest
     steps:
       - checkout
       - run:
@@ -52,7 +53,19 @@ jobs:
           command: mvn clean install -DskipTests
       - run:
           name: Release docker image
-          command: ./.scripts/build-docker-image.sh
+          command: ./.scripts/build-docker-image.sh latest
+
+  release-docker-image-snapshot:
+    docker:
+      - image: gjeanmart/openjdk8-mvn-solc:latest
+    steps:
+      - checkout
+      - run:
+          name: maven install
+          command: mvn clean install -DskipTests
+      - run:
+          name: Release docker image
+          command: ./.scripts/build-docker-image.sh snapshot
 
   release:
     docker:
