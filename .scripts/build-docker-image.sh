@@ -20,8 +20,8 @@ if [[ -v VERSION ]]; then
     echo building docker with version: ${VERSION}
     set -e
 
-    docker build -t kauriorg/web3auth:${VERSION} -f mahuta-http-api/Dockerfile server/.
-    docker build -t kauriorg/web3auth:${TYPE} -f mahuta-http-api/Dockerfile server/.
+    docker build -t kauriorg/web3auth:${VERSION} -f server/Dockerfile server/.
+    docker build -t kauriorg/web3auth:${TYPE} -f server/Dockerfile server/.
     docker push kauriorg/web3auth:${VERSION}
     docker push kauriorg/web3auth:${TYPE}
 fi
