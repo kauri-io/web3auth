@@ -47,6 +47,7 @@ jobs:
     docker:
       - image: gjeanmart/openjdk8-mvn-solc:latest
     steps:
+      - setup_remote_docker
       - checkout
       - run:
           name: maven install
@@ -59,6 +60,7 @@ jobs:
     docker:
       - image: gjeanmart/openjdk8-mvn-solc:latest
     steps:
+      - setup_remote_docker
       - checkout
       - run:
           name: maven install
