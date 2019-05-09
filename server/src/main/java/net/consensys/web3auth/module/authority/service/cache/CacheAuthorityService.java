@@ -39,31 +39,36 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
     
     @Override
     public void onEvent(ContractEventDetails contractEvent) {
-        
-        // Filter by event name (MemberEnabled or MemberDisabled)
-        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
-                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
-            
-            String account = remove0x(contractEvent.getIndexedParameters().get(0).getValueString()).toLowerCase();
-            String organisation = contractEvent.getIndexedParameters().get(1).getValueString();
-            int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
-            
-            Organisation org =  new Organisation(organisation, role);
-            
-            UserDomain user;
-            if(repository.existsById(account)) {
-                user = repository.findById(account).get();
-                if(!user.getOrgs().add(org)) {
-                    user.getOrgs().remove(org);
-                    user.getOrgs().add(org);
+
+        try {
+            // Filter by event name (MemberEnabled or MemberDisabled)
+            if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
+                    || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
+                
+                String account = remove0x(contractEvent.getIndexedParameters().get(0).getValueString()).toLowerCase();
+                String organisation = contractEvent.getIndexedParameters().get(1).getValueString();
+                int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
+                
+                Organisation org =  new Organisation(organisation, role);
+                
+                UserDomain user;
+                if(repository.existsById(account)) {
+                    user = repository.findById(account).get();
+                    if(!user.getOrgs().add(org)) {
+                        user.getOrgs().remove(org);
+                        user.getOrgs().add(org);
+                    }
+                    
+                } else {
+                    user = new UserDomain(account, org);
                 }
                 
-            } else {
-                user = new UserDomain(account, org);
+                log.debug("Saving {} ....", user);
+                repository.save(user);             
             }
             
-            log.trace("Saving {} ....", user);
-            repository.save(user);             
+        } catch(Exception ex) {
+            log.error("Error while processing event {}", contractEvent, ex);
         }
     }
     
