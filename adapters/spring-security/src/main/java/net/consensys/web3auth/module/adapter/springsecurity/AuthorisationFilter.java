@@ -115,7 +115,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
         }
         
         // Setup context
-        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(), token.get(), authorities);
+        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(true), token.get(), authorities);
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.debug("User {} authenticated!", tokenDetails.getAddress());

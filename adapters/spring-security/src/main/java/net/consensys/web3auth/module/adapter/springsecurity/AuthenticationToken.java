@@ -5,12 +5,11 @@ import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import net.consensys.web3auth.module.adapter.springsecurity.deserialization.*;
+import net.consensys.web3auth.module.adapter.springsecurity.deserialization.AuthenticationTokenSerializer;
 
 @JsonDeserialize(using = AuthenticationTokenSerializer.class)
 public class AuthenticationToken extends AbstractAuthenticationToken implements Authentication {
@@ -37,16 +36,6 @@ public class AuthenticationToken extends AbstractAuthenticationToken implements 
         super.setAuthenticated(true);
         this.principal = principal;
         this.token = token;
-    }
-
-    public String getName(boolean remove0x) {
-        Assert.notNull(super.getName(), "name can't be null");
-        
-        if(remove0x && super.getName().startsWith("0x")) {
-            return super.getName().substring(2, super.getName().length());
-        }
-        
-        return super.getName();
     }
 
     @JsonIgnore
