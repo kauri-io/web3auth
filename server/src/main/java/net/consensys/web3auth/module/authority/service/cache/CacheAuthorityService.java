@@ -51,18 +51,15 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
                 
                 Organisation org =  new Organisation(organisation, role);
                 
-                UserDomain user;
-                if(repository.existsById(account)) {
-                    user = repository.findById(account).get();
-                    if(!user.getOrgs().add(org)) {
-                        user.getOrgs().remove(org);
-                        user.getOrgs().add(org);
-                    }
-                    
-                } else {
-                    user = new UserDomain(account, org);
-                }
-                
+                UserDomain user = repository.findById(account)
+                        .map(u -> {
+                            if(!u.getOrgs().add(org)) {
+                                u.getOrgs().remove(org);
+                                u.getOrgs().add(org);
+                            }   
+                            return u;
+                        }).orElseGet(() -> new UserDomain(account, org));
+
                 log.debug("Saving {} ....", user);
                 repository.save(user);             
             }

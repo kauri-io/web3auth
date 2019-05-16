@@ -1,20 +1,28 @@
 package net.consensys.web3auth.common.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Organisation implements Serializable {
 
     private static final long serialVersionUID = -2161172913558756817L;
      
     private String name;
     private int role;
+    private Date dateAdded;
+
+    
+    public Organisation(String name, int role) {
+        super();
+        this.name = name;
+        this.role = role;
+        this.dateAdded = new Date();
+    }
     
     @Override
     public boolean equals(Object obj) {
