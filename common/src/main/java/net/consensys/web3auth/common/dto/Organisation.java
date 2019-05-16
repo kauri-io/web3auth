@@ -23,7 +23,7 @@ public class Organisation implements Serializable {
         this.role = role;
         this.dateAdded = new Date();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -38,17 +38,16 @@ public class Organisation implements Serializable {
                 return false;
         } else if (!name.equals(other.name))
             return false;
-        if (role != other.role)
-            return false;
         return true;
     }
+
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + role;
         return result;
     }
-
+    
 }
