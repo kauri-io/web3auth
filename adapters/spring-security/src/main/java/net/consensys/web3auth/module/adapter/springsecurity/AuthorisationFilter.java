@@ -25,10 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
 import net.consensys.web3auth.common.dto.AccountDetails;
 import net.consensys.web3auth.common.dto.ClientDetails;
-import net.consensys.web3auth.common.dto.ClientType;
 import net.consensys.web3auth.common.dto.Organisation;
 import net.consensys.web3auth.common.dto.exception.HTTPClientException;
 import net.consensys.web3auth.common.service.Web3AuthWSClient;
+import net.consensys.web3auth.module.adapter.springsecurity.authentication.AnonymousAuthenticationToken;
+import net.consensys.web3auth.module.adapter.springsecurity.authentication.IdentifiedAuthenticationToken;
 
 @Slf4j
 public class AuthorisationFilter extends OncePerRequestFilter {
@@ -44,85 +45,43 @@ public class AuthorisationFilter extends OncePerRequestFilter {
     }
     
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        
-        // Extract token 
-        Optional<String> token = Optional.empty();
-        if(client.getType().equals(ClientType.BROWSER)) {
-            token = getCookieValue(request, Constant.COOKIE_TOKEN_NAME);
-            if(!token.isPresent()) {
-                log.trace("No cookie {}", Constant.COOKIE_TOKEN_NAME);
-                filterChain.doFilter(request, response);
-                return;
-            }
-            
-        } else if(client.getType().equals(ClientType.BEARER)) {
-            String authenticationHeader = request.getHeader(authorizationHeader);
-            log.trace("authenticationHeader={}", authenticationHeader);
-            String authenticationParameter = decode(request.getParameter(authorizationHeader));
-            log.trace("authenticationParameter={}", authenticationParameter);
-    
-            if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
-                token = Optional.of(authenticationHeader.substring(7));
-                
-            } else if (authenticationParameter != null && authenticationParameter.startsWith("Bearer ")) {
-                token = Optional.of(authenticationParameter.substring(7));
-                
-            } else {
-                log.trace("No header {}", authorizationHeader);
-                log.trace("No parameter {}", authorizationHeader);
-                filterChain.doFilter(request, response);
-                return;
-            }
-            
-        } else {
-            log.error("unknow type {}", client.getType());
-            filterChain.doFilter(request, response);
-        }
-        
-        //////////////////////////////////////////////////////////////////////////
-        
-        if(!token.isPresent()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        log.trace("token found = {}", token.get());
-        
-        // Validate token
-        AccountDetails tokenDetails = null;
         try {
-            tokenDetails = this.web3AuthWSClient.getAccountByToken(token.get(), false);
-        } catch (HTTPClientException ex) {
-            log.warn("Error while validating the token: {}", ex.getMessage());
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
-            return;
-        } catch(Exception ex) {
-            log.error("Erro while validating the token: {}", ex.getMessage(), ex);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-            return;
-        }
-        log.trace("tokenDetails = {}", tokenDetails);
-
-        // Authorities
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        if(tokenDetails.getOrganisations() != null) {
-            for(Organisation o: tokenDetails.getOrganisations()) {
-                authorities.add(new SimpleGrantedAuthority(o.getName()+":"+o.getRole()));
+            String remoteAddr =  getRemoteAddress(request);
+            Optional<String> token = getToken(request, client, authorizationHeader);
+            
+            // No token : Anonymous user
+            if(!token.isPresent()) {
+                AnonymousAuthenticationToken anonymousAuth = new AnonymousAuthenticationToken(remoteAddr);
+                anonymousAuth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(anonymousAuth);
+                log.debug("Anonymous user [remoteAddress: {}, ID: {}]", anonymousAuth.getRemoteAddress(), anonymousAuth.getName());
+                
+            // Token found: Identified user
+            } else {
+                AccountDetails details = parseAndValidateToken(token.get(), web3AuthWSClient);
+                Collection<GrantedAuthority> authorities = collectAuthorities(details);
+                
+                IdentifiedAuthenticationToken identifiedAuth = new IdentifiedAuthenticationToken(details.getAddress(true), token.get(), remoteAddr, authorities);
+                identifiedAuth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(identifiedAuth);
+                log.debug("User authenticated [remoteAddress: {}, ID: {}]", identifiedAuth.getRemoteAddress(), identifiedAuth.getName());
             }
 
-        }
-        
-        // Setup context
-        AuthenticationToken authentication = new AuthenticationToken(tokenDetails.getAddress(true), token.get(), authorities);
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.debug("User {} authenticated!", tokenDetails.getAddress());
+            // Next
+            filterChain.doFilter(request, response);
+            
+        } catch (HTTPClientException ex) {
+            log.warn("Error while executing the filter 'AuthorisationFilter'", ex.getMessage());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
 
-        // Next
-        filterChain.doFilter(request, response);
+        } catch(Exception ex) {
+            log.warn("Error while executing the filter 'AuthorisationFilter'", ex.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
     }
+    
     
     private static String decode(String value) throws UnsupportedEncodingException {
         return Optional.ofNullable(value).map(v -> {
@@ -144,6 +103,62 @@ public class AuthorisationFilter extends OncePerRequestFilter {
                 .filter(c -> c.getName().equals(cookieName))
                 .findFirst()
                 .map(Cookie::getValue);
+    }
+    
+    public static Optional<String> getToken(HttpServletRequest req, ClientDetails client, String authorizationHeader) throws UnsupportedEncodingException {
+        
+        Optional<String> token = Optional.empty();
+        
+        switch (client.getType()) {
+        case BROWSER:
+            token = getCookieValue(req, Constant.COOKIE_TOKEN_NAME);
+            break;
+            
+        case BEARER:            
+            String authenticationHeader = req.getHeader(authorizationHeader);
+            log.trace("authenticationHeader={}", authenticationHeader);
+            String authenticationParameter = decode(req.getParameter(authorizationHeader));
+            log.trace("authenticationParameter={}", authenticationParameter);
+    
+            if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
+                token = Optional.of(authenticationHeader.substring(7));
+                
+            } else if (authenticationParameter != null && authenticationParameter.startsWith("Bearer ")) {
+                token = Optional.of(authenticationParameter.substring(7));
+            }
+            break;
+        }
+        
+        return token;
+    }
+    
+    public static AccountDetails parseAndValidateToken(String token, Web3AuthWSClient client) throws IOException {
+        AccountDetails tokenDetails = client.getAccountByToken(token, false);
+        log.trace("tokenDetails = {}", tokenDetails);
+        return tokenDetails;
+    }
+    
+    public static Collection<GrantedAuthority> collectAuthorities(AccountDetails accountDetails) {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        
+        if(accountDetails.getOrganisations() != null) {
+            for(Organisation o: accountDetails.getOrganisations()) {
+                authorities.add(new SimpleGrantedAuthority(o.getName()+":"+o.getRole()));
+            }
+        }
+        
+        return authorities;
+    }
+    
+    public static String getRemoteAddress(HttpServletRequest req) {
+        String remoteAddr = "";
+        if (req != null) {
+            remoteAddr = req.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = req.getRemoteAddr();
+            }
+        }
+        return remoteAddr;
     }
 
 }

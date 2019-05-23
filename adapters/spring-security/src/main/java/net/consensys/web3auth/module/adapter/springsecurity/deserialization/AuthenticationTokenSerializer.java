@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import net.consensys.web3auth.module.adapter.springsecurity.AuthenticationToken;
+import net.consensys.web3auth.module.adapter.springsecurity.authentication.IdentifiedAuthenticationToken;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
@@ -40,9 +41,10 @@ public class AuthenticationTokenSerializer extends JsonDeserializer<Authenticati
             authorities.add(new SimpleGrantedAuthority(authority.asText()));
         }
 
-        return new AuthenticationToken(
+        return new IdentifiedAuthenticationToken(
                 node.get("name").asText(),
                 node.get("token").asText(),
+                node.get("remoteAddress").asText(),
                 authorities);
     }
 
