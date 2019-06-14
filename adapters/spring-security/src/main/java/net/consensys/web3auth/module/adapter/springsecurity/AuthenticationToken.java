@@ -3,6 +3,7 @@ package net.consensys.web3auth.module.adapter.springsecurity;
 import org.springframework.security.core.Authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -21,6 +22,7 @@ import net.consensys.web3auth.module.adapter.springsecurity.authentication.Ident
         @JsonSubTypes.Type(value = AnonymousAuthenticationToken.class, name = AnonymousAuthenticationToken.TYPE)
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public interface AuthenticationToken extends Authentication {
 
     String getType();
