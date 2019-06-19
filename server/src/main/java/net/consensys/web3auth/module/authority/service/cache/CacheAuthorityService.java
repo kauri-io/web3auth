@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.Organisation;
+import net.consensys.web3auth.module.authority.exception.SmartContractException;
 import net.consensys.web3auth.module.authority.service.AuthorityService;
 import net.consensys.web3auth.module.authority.service.cache.db.UserDomain;
 import net.consensys.web3auth.module.authority.service.cache.db.UserRepository;
@@ -41,22 +42,27 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
     public void onEvent(ContractEventDetails contractEvent) {
 
         try {
-            // Filter by event name (MemberEnabled or MemberDisabled)
-            if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
-                    || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
+            // Filter by event name (MemberAdded or MemberRemoved and memberChanged)
+            if(  contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
+              || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())
+              || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())) {
                 
-                String account = remove0x(contractEvent.getIndexedParameters().get(0).getValueString()).toLowerCase();
-                String organisation = contractEvent.getIndexedParameters().get(1).getValueString();
-                int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
+                boolean add = contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
+                           || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName());
                 
-                Organisation org =  new Organisation(organisation, role);
+                String account = getAccountFromContractEvent(contractEvent);
+                Organisation org =  getOrganisationFromContractEvent(contractEvent);
                 
                 UserDomain user = repository.findById(account)
                         .map(u -> {
-                            if(!u.getOrgs().add(org)) {
+                            if(add && !u.getOrgs().add(org)) {
                                 u.getOrgs().remove(org);
                                 u.getOrgs().add(org);
-                            }   
+                                
+                            } else {
+                                u.getOrgs().remove(org);
+                            }
+                            
                             return u;
                         }).orElseGet(() -> new UserDomain(account, org));
 
@@ -77,5 +83,43 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
         }
 
         return userDomain.get().getOrgs();
+    }
+    
+    private String getAccountFromContractEvent(ContractEventDetails contractEvent) {
+
+        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
+                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
+            
+            return remove0x(contractEvent.getIndexedParameters().get(0).getValueString()).toLowerCase();
+            
+        } else if (contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())) {
+            
+            return remove0x(contractEvent.getIndexedParameters().get(1).getValueString()).toLowerCase();
+            
+        } else {
+            throw new SmartContractException("Unknown smart contract event: " + contractEvent.getName());
+        }
+    }
+    
+    private Organisation getOrganisationFromContractEvent(ContractEventDetails contractEvent) {
+
+        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
+                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
+
+            String organisation = contractEvent.getIndexedParameters().get(1).getValueString();
+            int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
+            
+            return  new Organisation(organisation, role);
+            
+        } else if (contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())) {
+
+            String organisation = contractEvent.getIndexedParameters().get(0).getValueString();
+            int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
+            
+            return  new Organisation(organisation, role);
+            
+        } else {
+            throw new SmartContractException("Unknown smart contract event: " + contractEvent.getName());
+        }
     }
 }
