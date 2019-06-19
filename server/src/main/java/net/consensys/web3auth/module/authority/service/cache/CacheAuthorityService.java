@@ -55,11 +55,11 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
                 
                 UserDomain user = repository.findById(account)
                         .map(u -> {
-                            if(add && !u.getOrgs().add(org)) {
+                            if(add && !u.getOrgs().add(org)) { // add or edit the organisation
                                 u.getOrgs().remove(org);
                                 u.getOrgs().add(org);
                                 
-                            } else {
+                            } else if (!add) { // remove the organisation
                                 u.getOrgs().remove(org);
                             }
                             
