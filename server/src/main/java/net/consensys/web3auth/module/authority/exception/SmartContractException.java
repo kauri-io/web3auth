@@ -7,4 +7,8 @@ public class SmartContractException extends RuntimeException {
     public SmartContractException(Throwable e) {
         super(e);
     }
+    
+    public SmartContractException(String m) {
+        super(m);
+    }
 }
