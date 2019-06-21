@@ -87,12 +87,12 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
     
     private String getAccountFromContractEvent(ContractEventDetails contractEvent) {
 
-        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
-                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
+        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())) {
             
             return remove0x(contractEvent.getIndexedParameters().get(0).getValueString()).toLowerCase();
             
-        } else if (contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())) {
+        } else if (contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())
+                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
             
             return remove0x(contractEvent.getIndexedParameters().get(1).getValueString()).toLowerCase();
             
@@ -103,15 +103,15 @@ public class CacheAuthorityService  implements CacheProcessor, AuthorityService{
     
     private Organisation getOrganisationFromContractEvent(ContractEventDetails contractEvent) {
 
-        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())
-                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
+        if(contractEvent.getName().equals(Web3AuthPolicyI.MEMBERADDED_EVENT.getName())) {
 
             String organisation = contractEvent.getIndexedParameters().get(1).getValueString();
             int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
             
             return  new Organisation(organisation, role);
             
-        } else if (contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())) {
+        } else if (contractEvent.getName().equals(Web3AuthPolicyI.MEMBERROLECHANGED_EVENT.getName())
+                || contractEvent.getName().equals(Web3AuthPolicyI.MEMBERREMOVED_EVENT.getName())) {
 
             String organisation = contractEvent.getIndexedParameters().get(0).getValueString();
             int role = Integer.parseInt(contractEvent.getIndexedParameters().get(2).getValueString());
