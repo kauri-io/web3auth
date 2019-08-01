@@ -14,10 +14,4 @@ RUN wget -O apm-agent.jar https://search.maven.org/remotecontent?filepath=co/ela
 
 
 EXPOSE 8080
-
-CMD java -javaagent:/apm-agent.jar \
-         -Delastic.apm.server_urls=$ELASTIC_APM_SERVER \
-         -Delastic.apm.service_name=web3auth \
-         -Delastic.apm.application_packages=net.consensys.web3auth\
-         -Djava.security.egd=file:/dev/./urandom \
-         -jar /app.jar
+CMD ["java", "-jar", "app.jar", "--spring.config.additional-location=${WEB3AUTH_CONF}"]
