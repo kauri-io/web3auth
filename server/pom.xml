@@ -14,7 +14,6 @@
         <jjwt.version>0.5</jjwt.version>
         <elastic-apm.version>1.8.0</elastic-apm.version>
         <opentracing-api.version>0.32.0</opentracing-api.version>
-        <opentracing-spring-cloud.version>0.3.1</opentracing-spring-cloud.version>
     </properties>
 
     <dependencies>
@@ -100,30 +99,9 @@
         <!-- Monitoring -->
         <dependency>
             <groupId>co.elastic.apm</groupId>
-            <artifactId>apm-opentracing</artifactId>
+            <artifactId>apm-agent-api</artifactId>
             <version>${elastic-apm.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.opentracing</groupId>
-            <artifactId>opentracing-api</artifactId>
-            <version>${opentracing-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing</groupId>
-            <artifactId>opentracing-util</artifactId>
-            <version>${opentracing-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing.contrib</groupId>
-            <artifactId>opentracing-spring-web-autoconfigure</artifactId>
-            <version>${opentracing-spring-cloud.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing.contrib</groupId>
-            <artifactId>opentracing-spring-cloud-mongo-starter</artifactId>
-            <version>${opentracing-spring-cloud.version}</version>
-        </dependency>
-
     </dependencies>
 
 
