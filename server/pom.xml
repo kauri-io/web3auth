@@ -96,15 +96,20 @@
         </dependency>
 
         <!-- Monitoring -->
-<!--         <dependency> -->
-<!--             <groupId>co.elastic.apm</groupId> -->
-<!--             <artifactId>apm-agent-api</artifactId> -->
-<!--             <version>${elastic-apm.version}</version> -->
-<!--         </dependency> -->
+        <!-- <dependency> -->
+        <!-- <groupId>co.elastic.apm</groupId> -->
+        <!-- <artifactId>apm-agent-api</artifactId> -->
+        <!-- <version>${elastic-apm.version}</version> -->
+        <!-- </dependency> -->
         <dependency>
             <groupId>co.elastic.apm</groupId>
             <artifactId>apm-opentracing</artifactId>
             <version>${elastic-apm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-cloud-starter</artifactId>
+            <version>0.2.6</version>
         </dependency>
         <dependency>
             <groupId>io.opentracing.contrib</groupId>
