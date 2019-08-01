@@ -96,11 +96,11 @@
         </dependency>
 
         <!-- Monitoring -->
-        <!-- <dependency> -->
-        <!-- <groupId>co.elastic.apm</groupId> -->
-        <!-- <artifactId>apm-agent-api</artifactId> -->
-        <!-- <version>${elastic-apm.version}</version> -->
-        <!-- </dependency> -->
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-api</artifactId>
+            <version>${elastic-apm.version}</version>
+        </dependency>
         <dependency>
             <groupId>co.elastic.apm</groupId>
             <artifactId>apm-opentracing</artifactId>
