@@ -13,7 +13,6 @@
         <web3j.version>3.6.0</web3j.version>
         <jjwt.version>0.5</jjwt.version>
         <elastic-apm.version>1.8.0</elastic-apm.version>
-        <opentracing-api.version>0.32.0</opentracing-api.version>
     </properties>
 
     <dependencies>
