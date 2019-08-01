@@ -13,7 +13,6 @@
         <web3j.version>3.6.0</web3j.version>
         <jjwt.version>0.5</jjwt.version>
         <elastic-apm.version>1.8.0</elastic-apm.version>
-        <package-name>spring-boot-simple</package-name>
     </properties>
 
     <dependencies>
