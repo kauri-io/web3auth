@@ -101,6 +101,21 @@
             <artifactId>apm-agent-api</artifactId>
             <version>${elastic-apm.version}</version>
         </dependency>
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-opentracing</artifactId>
+            <version>${elastic-apm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-web-autoconfigure</artifactId>
+            <version>0.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-cloud-mongo-starter</artifactId>
+            <version>0.2.6</version>
+        </dependency>
     </dependencies>
 
 
