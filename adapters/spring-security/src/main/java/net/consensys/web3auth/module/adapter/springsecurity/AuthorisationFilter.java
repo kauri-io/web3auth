@@ -153,7 +153,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
     public static String getRemoteAddress(HttpServletRequest req) {
         String remoteAddr = "";
         if (req != null) {
-            remoteAddr = req.getHeader("X-FORWARDED-FOR");
+            remoteAddr = req.getHeader("x-forwarded-for");
             if (remoteAddr == null || "".equals(remoteAddr)) {
                 remoteAddr = req.getRemoteAddr();
             }
