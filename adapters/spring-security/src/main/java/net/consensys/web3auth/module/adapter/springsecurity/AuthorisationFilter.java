@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -152,6 +153,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
     
     public static String getRemoteAddress(HttpServletRequest req) {
         String remoteAddr = "";
+
         if (req != null) {
             remoteAddr = req.getHeader("x-forwarded-for");
             if (remoteAddr == null || "".equals(remoteAddr)) {
