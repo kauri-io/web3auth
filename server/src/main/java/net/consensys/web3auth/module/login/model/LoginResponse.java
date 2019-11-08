@@ -21,6 +21,9 @@ public class LoginResponse {
     @JsonProperty("address")
     private String address;
 
+    @JsonProperty("wallet_address")
+    private String wallet_address;
+
     @JsonProperty("token")
     private String token;
 

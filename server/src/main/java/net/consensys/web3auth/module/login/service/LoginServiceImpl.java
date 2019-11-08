@@ -10,7 +10,9 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.web3j.utils.Numeric;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.Constant;
@@ -28,6 +30,8 @@ import net.consensys.web3auth.module.login.model.LoginRequest;
 import net.consensys.web3auth.module.login.model.LoginResponse;
 import net.consensys.web3auth.module.login.model.OTS;
 import net.consensys.web3auth.module.login.service.ots.OTSGeneratorService;
+import net.consensys.web3auth.module.wallet.model.Wallet;
+import net.consensys.web3auth.module.wallet.service.WalletService;
 
 /**
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
@@ -39,13 +43,16 @@ public class LoginServiceImpl implements LoginService {
 
     private final OTSGeneratorService otsGeneratorService;
     private final ApplicationService applicationService;
+    private final WalletService walletService;
 
     @Autowired
     protected LoginServiceImpl(
             OTSGeneratorService otsGeneratorService, 
-            ApplicationService applicationService) {
+            ApplicationService applicationService,
+            @Lazy WalletService walletService) {
         this.otsGeneratorService = otsGeneratorService;
         this.applicationService = applicationService;
+        this.walletService = walletService;
     }
 
     @Override
@@ -85,11 +92,18 @@ public class LoginServiceImpl implements LoginService {
                 sentence.get().getSentence());
 
         Optional<String> address = addressesRecovered.entrySet().stream()
-                .filter(a -> loginRequest.getAddress().equals(a.getValue()))
+                .filter(a -> loginRequest.getAddress().equalsIgnoreCase(a.getValue()))
                 .map(Entry::getValue).findFirst();
 
         if (!address.isPresent()) {
             throw new SignatureException("Signature doesn't match");
+        }
+        
+        // Deploy wallet
+        String walletAddress = null;
+        if(walletService != null ) {
+            Wallet wallet = walletService.create(loginRequest.getAddress(), CryptoUtils.hash(sentence.get().getSentence()), loginRequest.getSignature());
+            walletAddress = wallet.getAddress();
         }
         
         // Generate JWT
@@ -101,8 +115,9 @@ public class LoginServiceImpl implements LoginService {
         // Set cookies
         CookieUtils.addCookie(applicationService.getCookie(), response, Constant.COOKIE_TOKEN_NAME, token, JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token), true);
         CookieUtils.addCookie(applicationService.getCookie(), response, Constant.COOKIE_ADDRESS_NAME, loginRequest.getAddress(), JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token), false);
+        CookieUtils.addCookie(applicationService.getCookie(), response, Constant.COOKIE_WALLET_NAME, walletAddress, JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token), false);
 
-        return new LoginResponse(loginRequest.getClientId(), loginRequest.getAddress(), token,
+        return new LoginResponse(loginRequest.getClientId(), loginRequest.getAddress(), walletAddress, token,
                 JwtUtils.getExpirationDateFromToken(applicationService.getJwt(), token));
 
     }

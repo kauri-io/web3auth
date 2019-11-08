@@ -21,14 +21,20 @@ public abstract class CryptoUtils {
 
     private CryptoUtils() {}
     
+    public static byte[] hash(String message) {
+        
+        String pref = PERSONAL_MESSAGE_PREFIX + message.length();
+
+        byte[] msgHash = Hash.sha3((pref+message).getBytes());
+        log.trace("msgHash={}", Numeric.toHexString(msgHash));
+        
+        return msgHash;
+    }
+    
     public static Map<Integer, String> ecrecover(String signature, String message) {
         log.debug("checkSig(signature={}, message={})", signature, message);
     
-         // Message
-         String pref = PERSONAL_MESSAGE_PREFIX + message.length();
-
-         byte[] msgHash = Hash.sha3((pref+message).getBytes());
-         log.trace("msgHash={}", Numeric.toHexString(msgHash));
+         byte[] msgHash = hash(message);
 
          // Signature
          byte[] array = Numeric.hexStringToByteArray(signature);

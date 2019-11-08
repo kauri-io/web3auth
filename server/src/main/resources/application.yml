@@ -36,7 +36,12 @@ web3auth:
     kafkaAddress: localhost:9092 # only for mode CACHE
     groupId: web3auth # only for mode CACHE
     topic: contract-events # only for mode CACHE
-    
+   
+  wallet:
+    enable: true
+    mode: RELAY
+    relay:
+      endpoint: http://localhost:8080/relay 
 
   clients:
     - clientId: demo_client
