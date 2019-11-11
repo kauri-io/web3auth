@@ -39,9 +39,12 @@ web3auth:
    
   wallet:
     enable: true
-    mode: RELAY
+    mode: DIRECT # NONE | DIRECT | RELAY
     relay:
       endpoint: http://localhost:8080/relay 
+    relay: 
+      mnemonic: "1 2 3"
+      rpcUrl: "http://localhost:8545"
 
   clients:
     - clientId: demo_client

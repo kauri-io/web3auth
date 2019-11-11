@@ -1,14 +1,14 @@
-package net.consensys.web3auth.module.wallet.integration;
+package net.consensys.web3auth.module.wallet.integration.relay;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RelayWalletAddKeyRequest {
+public class RelayWalletDeployWalletRequest {
 
     private String key;
-    private Integer role;
+    private String hash;
     private String signature;
     
 }

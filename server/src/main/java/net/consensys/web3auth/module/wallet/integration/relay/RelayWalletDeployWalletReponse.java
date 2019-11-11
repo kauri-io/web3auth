@@ -1,4 +1,4 @@
-package net.consensys.web3auth.module.wallet.integration;
+package net.consensys.web3auth.module.wallet.integration.relay;
 
 import lombok.Data;
 

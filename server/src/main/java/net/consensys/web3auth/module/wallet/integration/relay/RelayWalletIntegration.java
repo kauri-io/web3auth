@@ -1,4 +1,4 @@
-package net.consensys.web3auth.module.wallet.integration;
+package net.consensys.web3auth.module.wallet.integration.relay;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,10 +12,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import net.consensys.web3auth.module.wallet.integration.WalletIntegration;
 import net.consensys.web3auth.module.wallet.model.Key.KeyRole;
 
 @Component
-@ConditionalOnProperty(name = "web3auth.wallet.enable", havingValue = "true")
+@ConditionalOnProperty(name = "web3auth.wallet.mode", havingValue = "RELAY")
 public class RelayWalletIntegration implements WalletIntegration {
 
     private final String endpoint;
