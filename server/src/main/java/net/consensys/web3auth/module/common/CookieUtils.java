@@ -11,6 +11,8 @@ import java.util.Date;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.util.StringUtils;
+
 import net.consensys.web3auth.module.application.model.Application.CookieSetting;
 
 public class CookieUtils {
@@ -24,8 +26,12 @@ public class CookieUtils {
         
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(maxAge);
-        cookie.setPath(cookieSetting.getPath());
-        cookie.setDomain(cookieSetting.getDomain());
+        if(!StringUtils.isEmpty(cookieSetting.getPath())) {
+            cookie.setPath(cookieSetting.getPath());
+        }
+        if(!StringUtils.isEmpty(cookieSetting.getDomain())) {
+            cookie.setDomain(cookieSetting.getDomain());
+        }
         cookie.setSecure(cookieSetting.isSecure());
         cookie.setHttpOnly(httpOnly);
 
@@ -35,8 +41,12 @@ public class CookieUtils {
     public static void deleteCookie(CookieSetting cookieSetting, HttpServletResponse response, String name) {
         Cookie cookie = new Cookie(name, null);
         cookie.setMaxAge(0);
-        cookie.setPath(cookieSetting.getPath());
-        cookie.setDomain(cookieSetting.getDomain());
+        if(!StringUtils.isEmpty(cookieSetting.getPath())) {
+            cookie.setPath(cookieSetting.getPath());
+        }
+        if(!StringUtils.isEmpty(cookieSetting.getDomain())) {
+            cookie.setDomain(cookieSetting.getDomain());
+        }
         cookie.setSecure(cookieSetting.isSecure());
 
         response.addCookie(cookie);

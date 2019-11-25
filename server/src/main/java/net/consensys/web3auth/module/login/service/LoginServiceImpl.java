@@ -54,9 +54,9 @@ public class LoginServiceImpl implements LoginService {
 
         Client client = this.getClient(clientId);
 
-        if(!client.getType().equals(expectedClientType)) {
-            throw new WrongClientTypeException(clientId, client.getType(), expectedClientType);
-        }
+//        if(!client.getType().equals(expectedClientType)) {
+//            throw new WrongClientTypeException(clientId, client.getType(), expectedClientType);
+//        }
         
         return otsGeneratorService.generateOTS(applicationService.getAppId());
     }
@@ -67,9 +67,9 @@ public class LoginServiceImpl implements LoginService {
 
         Client client = this.getClient(clientId);
 
-        if(!client.getType().equals(expectedClientType)) {
-            throw new WrongClientTypeException(clientId, client.getType(), expectedClientType);
-        }
+//        if(!client.getType().equals(expectedClientType)) {
+//            throw new WrongClientTypeException(clientId, client.getType(), expectedClientType);
+//        }
         
         // Get Sentence
         Optional<OTS> sentence = otsGeneratorService.getOTS(loginRequest.getOtsId());
