@@ -1,62 +1,57 @@
 server:
   port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /web3auth
+#  servlet:
+#    context-path: /web3auth
 
 logging:
   level:
-    net.consensys.web3auth: ${LOG_LEVEL:INFO}
-    org.web3j: ${LOG_LEVEL:INFO}
+    net.consensys.web3auth: ${LOG_LEVEL:DEBUG}
    
     
 web3auth:               
-  appId: demo
+  instance: demo
+  serverUrl: http://localhost:8080
 
-  otp:
-    type: IN_MEMORY # IN_MEMORY or DB
+  otc:
+    type: DB # IN_MEMORY | DB
     dictionnary: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
     length: 10
-    prefix: "Log in to kauri.io by signing this secret code: "
+    prefix: "Log in to demo.io by signing this secret code: "
     expiration: 60 # seconds
     
   jwt:
     issuer: "demo"
-    secret: "secret!"
-    expiration: 2592000 # seconds
+    secret: "s3cret!"
+    expiration: 2592000 # seconds 
     
   cookie:
      path: "/"
      domain: "localhost"
      secure: false
-      
-  authority:
-    mode: NONE # NONE | GETTER | EVENT | CACHE
-    ethereum: http://localhost:8545 # only for mode GETTER and EVENT
-    smartContract: 0x752dad129739df65e5a8949e50a63d231fbe8403 # only for mode GETTER and EVENT
-    kafkaAddress: localhost:9092 # only for mode CACHE
-    groupId: web3auth # only for mode CACHE
-    topic: contract-events # only for mode CACHE
    
   wallet:
-    enable: true
-    mode: DIRECT # NONE | DIRECT | RELAY
-    relay:
-      endpoint: http://localhost:8080/relay 
-    relay: 
-      mnemonic: "1 2 3"
-      rpcUrl: "http://localhost:8545"
+    mode: DIRECT # DIRECT | RELAY
+    #relay:
+    #  endpoint: http://localhost:8080/relay 
+    direct:
+      mnemonic: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      rpcUrl: http://localhost:8545
+      proxyFactory: ""
+      gnosisSafeMasterCopy: ""
 
   clients:
-    - clientId: demo_client
-      type: BROWSER
-      url: http://localhost:8081
-    
-    - clientId: demo_service
-      type: BEARER
-      url: http://localhost:8082
+    - clientId: demo
+      type: BROWSER  # BROWSER | BEARER | BOTH
+      defaultRedirect: http://localhost:3000
+      
+  socialConnect:
+    github:
+      clientId: 68ea2e38d173c87a02e9
+      clientSecret: ed96ad307150af636442ca6bac1d55682615bcd6
+      redirect: http://localhost:8080/social-connect/auth/github/redirect      
       
   cors:
-    origins: "${CORS_ORIGIN:http://localhost:8080}"
+    origins: "${CORS_ORIGIN:http://localhost:.*}"
     methods: "${CORS_METHODS:GET,POST,PUT,OPTIONS,DELETE,PATCH}"
     headers: "${CORS_HEADERS:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept,X-Auth-Token}"
     credentials: "${CORS_CREDENTIALS:true}"
@@ -65,4 +60,12 @@ web3auth:
     host: ${SPRING_DATA_MONGODB_HOST:localhost}
     port: ${SPRING_DATA_MONGODB_PORT:27017}
     uri: ${SPRING_DATA_MONGODB_URI:#{null}} 
-    database: ${SPRING_DATA_MONGODB_DATABASE:web3auth}      
+    database: ${SPRING_DATA_MONGODB_DATABASE:web3auth}    
+      
+#  authority:
+#    mode: NONE # NONE | GETTER | EVENT | CACHE
+#    ethereum: http://localhost:8545 # only for mode GETTER and EVENT
+#    smartContract: 0x752dad129739df65e5a8949e50a63d231fbe8403 # only for mode GETTER and EVENT
+#    kafkaAddress: localhost:9092 # only for mode CACHE
+#    groupId: web3auth # only for mode CACHE
+#    topic: contract-events # only for mode CACHE  

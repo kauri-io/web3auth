@@ -11,8 +11,9 @@ import lombok.ToString;
 @ToString
 public class ClientDetails {
 
-    private String appId;
+    private String instance;
     private String clientId;
     private ClientType type;
+    private String defaultRedirect;
     
 }

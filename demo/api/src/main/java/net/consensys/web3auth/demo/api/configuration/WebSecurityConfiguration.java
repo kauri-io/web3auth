@@ -12,12 +12,11 @@ import net.consensys.web3auth.module.adapter.springsecurity.Web3AuthSecurityConf
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends Web3AuthSecurityConfiguration {
 
-    private static final String appId = "demo";
     private static final String clientId = "demo_service";
     private static final String authEndpoint = "http://localhost:8080";
 
     public WebSecurityConfiguration() {
-        super(appId, clientId, authEndpoint);
+        super(clientId, authEndpoint);
     }
     
     @Override

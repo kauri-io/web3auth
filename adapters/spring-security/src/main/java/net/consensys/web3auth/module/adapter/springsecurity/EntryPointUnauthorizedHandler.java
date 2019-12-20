@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.util.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.common.dto.ClientDetails;
@@ -26,17 +27,18 @@ public class EntryPointUnauthorizedHandler implements AuthenticationEntryPoint {
     
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException, ServletException {
-
-        if(client.getType().equals(ClientType.BROWSER)) {
-            String uri = authEndpoint + "/login?app_id="+client.getAppId()+"&client_id="+client.getClientId()+"&redirect_uri="+request.getRequestURL();
+        final String userAgent = request.getHeader("User-Agent");
+        
+        boolean redirect = (client.getType().equals(ClientType.BROWSER) || client.getType().equals(ClientType.BOTH)) 
+                && !StringUtils.isEmpty(userAgent);
+ 
+        if(redirect) {
+            String uri = authEndpoint + "/login?client_id="+client.getClientId()+"&redirect_uri="+request.getRequestURL();
             log.debug("redirect to {}", uri);
             response.sendRedirect(uri);
-            
-        } else if(client.getType().equals(ClientType.BEARER)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Denied");
-            
+              
         } else {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unused type");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Denied");
         }
     }
 

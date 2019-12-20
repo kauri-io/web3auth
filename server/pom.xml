@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>web3auth-server</artifactId>
     <parent>
@@ -8,14 +10,23 @@
     </parent>
 
     <properties>
-        <web3j.version>3.6.0</web3j.version>
+        <web3j.version>4.5.10</web3j.version>
+        <web3j-maven-plugin.version>4.2.0</web3j-maven-plugin.version>
         <jjwt.version>0.5</jjwt.version>
         <elastic-apm.version>1.8.0</elastic-apm.version>
+        <frontend-maven-plugin.version>1.8.0</frontend-maven-plugin.version>
+        <node.version>v12.14.0</node.version>
+        <yarn.version>v1.12.1</yarn.version>
     </properties>
 
     <dependencies>
 
         <!-- web3auth -->
+        <dependency>
+            <groupId>net.consensys.web3auth</groupId>
+            <artifactId>web3auth-adapters-springsecurity</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>net.consensys.web3auth</groupId>
             <artifactId>web3auth-common</artifactId>
@@ -104,52 +115,8 @@
 
     <build>
         <finalName>web3auth</finalName>
-        <plugins>
 
-            <plugin>
-                <groupId>org.web3j</groupId>
-                <artifactId>web3j-maven-plugin</artifactId>
-                <version>0.3.7</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate-sources</goal>
-                        </goals>
-                        <configuration>
-                            <packageName>net.consensys.web3auth.smartcontract.generated</packageName>
-                            <sourceDestination>${basedir}/target/generated-sources/contracts</sourceDestination>
-                            <nativeJavaType>true</nativeJavaType>
-                            <outputFormat>java</outputFormat>
-                            <soliditySourceFiles>
-                                <directory>${basedir}/src/main/resources</directory>
-                                <includes>
-                                    <include>**/*.sol</include>
-                                </includes>
-                            </soliditySourceFiles>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/target/generated-sources/contracts</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+        <plugins>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -171,6 +138,150 @@
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.web3j</groupId>
+                <artifactId>web3j-maven-plugin</artifactId>
+                <version>${web3j-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate-sources</goal>
+                        </goals>
+                        <configuration>
+                            <packageName>net.consensys.web3auth.smartcontract.generated</packageName>
+                            <sourceDestination>${basedir}/target/generated-sources/contracts</sourceDestination>
+                            <nativeJavaType>true</nativeJavaType>
+                            <outputFormat>java</outputFormat>
+                            <soliditySourceFiles>
+                                <directory>${basedir}/src/main/resources/contracts</directory>
+                                <includes>
+                                    <include>safe-contracts/contracts/**/*.sol</include>
+                                </includes>
+                                <excludes>
+                                    <exclude>safe-contracts/contracts/mocks/*.sol</exclude>
+                                </excludes>
+                            </soliditySourceFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/generated-sources/contracts</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-index</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes/templates</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/react/web3auth-login/build</directory>
+                                    <includes>
+                                        <include>index.html</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/react/web3auth-login/build</directory>
+                                    <includes>
+                                        <include>**/**</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <configuration>
+                    <workingDirectory>src/main/react/web3auth-login</workingDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install node</id>
+                        <goals>
+                            <goal>install-node-and-yarn</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <yarnVersion>${yarn.version}</yarnVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>yarn test</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>test</arguments>
+                            <environmentVariables>
+                                <CI>true</CI>
+                            </environmentVariables>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn build</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <arguments>build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
         </plugins>
     </build>
 </project>

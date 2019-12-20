@@ -23,14 +23,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.web3j.utils.Strings;
@@ -42,45 +39,36 @@ import lombok.extern.slf4j.Slf4j;
  * @author Gregoire Jeanmart <gregoire.jeanmart@consensys.net>
  *
  */
-@Component
 @Slf4j
 public class CorsFilter extends OncePerRequestFilter {
 
     public static final String WILDCARD = "*";
 
-    @Value("#{'${web3auth.cors.origins}'.split(',')}")
-    public List<String> allowedOrigin;
-    @Value("#{'${web3auth.cors.methods}'.split(',')}")
-    public List<String> allowedMethods;
-    @Value("#{'${web3auth.cors.headers}'.split(',')}")
-    public List<String> allowedHeaders;
-    @Value("${web3auth.cors.credentials}") 
-    public boolean allowCredentials;
+    public final List<String> allowedOrigin;
+    public final List<String> allowedMethods;
+    public final List<String> allowedHeaders;
+    public final boolean allowCredentials;
     
     private int maxAge = 3600;
     
     public List<Pattern> allowedOriginPatterns;
     
-    public CorsFilter() {}
-    
     public CorsFilter(
-	    @Value("#{'${cors.origins}'.split(',')}") List<String> allowedOrigin, 
-	    @Value("#{'${cors.methods}'.split(',')}") List<String> allowedMethods, 
-	    @Value("#{'${cors.headers}'.split(',')}") List<String> allowedHeaders, 
-	    @Value("${cors.credentials}") boolean allowCredentials) {
+	    List<String> allowedOrigin, 
+	    List<String> allowedMethods, 
+	    List<String> allowedHeaders, 
+	    boolean allowCredentials) {
         
-	this.allowedOrigin = allowedOrigin;
-	this.allowedMethods = allowedMethods;;
-	this.allowedHeaders = allowedHeaders;
-	this.allowCredentials = allowCredentials;
-
-	this.initialize();
+    	this.allowedOrigin = allowedOrigin;
+    	this.allowedMethods = allowedMethods;;
+    	this.allowedHeaders = allowedHeaders;
+    	this.allowCredentials = allowCredentials;
+    
+    	this.initialize();
     }
     
-
-    @PostConstruct
     public void initialize() {
-	this.allowedOriginPatterns = new ArrayList<>();
+        this.allowedOriginPatterns = new ArrayList<>();
 	
         if (allowedOrigin != null) {
             for (String allowedUri : allowedOrigin) {

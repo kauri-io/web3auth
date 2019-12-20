@@ -7,7 +7,5 @@ public interface Web3AuthWSClient {
 
     ClientDetails getClient();
     
-    AccountDetails getAccountByToken(String token, boolean getOrganisations);
-    
-    AccountDetails getAccountByAddress(String address, boolean getOrganisations);
+    AccountDetails getAccountByToken(String token);
 }
