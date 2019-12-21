@@ -51,3 +51,4 @@ apikey.py
 *.ethereum_*
 *.*docker*
 /.README.md.html
+.env

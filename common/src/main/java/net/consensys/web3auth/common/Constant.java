@@ -2,6 +2,7 @@ package net.consensys.web3auth.common;
 
 public class Constant {
 
+    public static final String COOKIE_LOGGED_IN = "web3auth.logged_in";
     public static final String COOKIE_PROVIDER = "web3auth.provider";
     public static final String COOKIE_TOKEN = "web3auth.token";
     public static final String COOKIE_ACCOUNT = "web3auth.account";

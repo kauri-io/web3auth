@@ -3,6 +3,7 @@ package net.consensys.web3auth.controller;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -37,13 +39,15 @@ import net.consensys.web3auth.service.login.LoginService;
 public class LoginBrowserController {
     private static final Collection<ClientType> EXPECTED_TYPES = Arrays.asList(ClientType.BROWSER, ClientType.BOTH);
 
+    private final String serverUrl;
     private final ConfigService configService;
     private final LoginService loginService;
 
     @Autowired
-    public LoginBrowserController(LoginService loginService, ConfigService configService) {
+    public LoginBrowserController(@Value("${web3auth.serverUrl}") String serverUrl, LoginService loginService, ConfigService configService) {
         this.loginService = loginService;
         this.configService = configService;
+        this.serverUrl = serverUrl;
     }
 
     @GetMapping(value = "/login")
@@ -52,13 +56,21 @@ public class LoginBrowserController {
 
         log.debug("loginPage(clientId:{}, redirectUri: {})", clientId, redirectUri);
 
+        // Get client details
+        Client client =configService.getClient(clientId);
+        
         // Generate and store random sentence
         OTC otc = loginService.init(clientId, EXPECTED_TYPES);
+        
+        // Redirect after login
+        String redirect = Optional.ofNullable(redirectUri).orElse(client.getDefaultRedirect());
+        
+        model.addAttribute("redirect_uri", redirect);
 
-        model.addAttribute("redirect_uri", redirectUri);
-
-        return new ModelAndView("index", model).addObject("code", otc.getCode()).addObject("loginRequest",
-                new LoginRequest(clientId, otc.getId(), redirectUri));
+        return new ModelAndView("index", model)
+                .addObject("code", otc.getCode())
+                .addObject("serverUrl", serverUrl)
+                .addObject("loginRequest", new LoginRequest(clientId, otc.getId(), redirect));
     }
 
     @PostMapping(value = "/login")
@@ -67,20 +79,30 @@ public class LoginBrowserController {
 
         log.debug("login(loginRequest: {})", loginRequest);
 
-        // Check object
-        if (result.hasErrors()) {
-            throw new ValidationException("validation error");
-        }
+        try {
+            if (result.hasErrors()) { // Check object
+                throw new ValidationException("Validation: " + result.getFieldError().getDefaultMessage());
+            }
 
-        loginService.login(loginRequest.getClientId(), EXPECTED_TYPES, loginRequest, response);
+            loginService.login(loginRequest.getClientId(), EXPECTED_TYPES, loginRequest, response);
+            
+            // Redirect
+            if (StringUtils.isEmpty(loginRequest.getRedirectUri())) {
+                Client client = this.loginService.getClient(loginRequest.getClientId());
 
-        // Redirect
-        if (StringUtils.isEmpty(loginRequest.getRedirectUri())) {
-            Client client = this.loginService.getClient(loginRequest.getClientId());
-
-            return new ModelAndView(Constant.REDIRECT + client.getDefaultRedirect());
-        } else {
-            return new ModelAndView(Constant.REDIRECT + loginRequest.getRedirectUri());
+                return new ModelAndView(Constant.REDIRECT + client.getDefaultRedirect());
+            } else {
+                return new ModelAndView(Constant.REDIRECT + loginRequest.getRedirectUri());
+            }
+            
+        } catch(Exception ex) {
+            log.error("Error whilst signing in", ex);
+            OTC otc = loginService.init(loginRequest.getClientId(), EXPECTED_TYPES);
+            return new ModelAndView("index", model)
+                    .addObject("code", otc.getCode())
+                    .addObject("error", ex.getMessage())
+                    .addObject("serverUrl", serverUrl)
+                    .addObject("loginRequest", new LoginRequest(loginRequest.getClientId(), otc.getId(), loginRequest.getRedirectUri())); 
         }
     }
 

@@ -26,7 +26,6 @@ public class DefaultWalletService implements WalletService {
         integration.listenForNewWalletEvents((wallet, owner) -> {
             if(!repository.findById(wallet).isPresent()) {
                 repository.save(new Wallet(wallet, 0, Arrays.asList()));
-                startEventListeners();
             }
             this.onKeyAdded(wallet, owner);
         });
@@ -75,6 +74,7 @@ public class DefaultWalletService implements WalletService {
 
     @Override
     public Wallet create(String key) {
+        log.debug("create(key: {})", key);
         
         List<Wallet> found = repository.findByKey(key);
 

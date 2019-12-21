@@ -121,7 +121,9 @@ public class LoginServiceImpl implements LoginService {
         CookieUtils.addCookie(configService.getCookie(), response, Constant.COOKIE_ACCOUNT, loginRequest.getAccount(), JwtUtils.getExpirationDateFromToken(configService.getJwt(), token), false);
         CookieUtils.addCookie(configService.getCookie(), response, Constant.COOKIE_WALLET, walletAddress, JwtUtils.getExpirationDateFromToken(configService.getJwt(), token), false);
         CookieUtils.addCookie(configService.getCookie(), response, Constant.COOKIE_PROVIDER, loginRequest.getProvider(), JwtUtils.getExpirationDateFromToken(configService.getJwt(), token), false);
+        CookieUtils.addCookie(configService.getCookie(), response, Constant.COOKIE_LOGGED_IN, "true", JwtUtils.getExpirationDateFromToken(configService.getJwt(), token), false);
 
+        
         return new LoginResponse(loginRequest.getClientId(), loginRequest.getAccount(), walletAddress, token,
                 JwtUtils.getExpirationDateFromToken(configService.getJwt(), token));
 

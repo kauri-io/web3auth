@@ -12,8 +12,8 @@
     </properties>
 
     <modules>
-	<module>web</module>
-	<module>api</module>
+	<module>demo-spring-web</module>
+	<module>demo-api</module>
     </modules>
   
 

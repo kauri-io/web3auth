@@ -56,7 +56,7 @@ public class SocialConnectControler {
         log.debug("githubRedirect(code: {}, state: {})", code, state);
 
         String callbackURL = socialConnectGitHubService.redirect(code, state, response);
-        
+        log.debug("githubRedirect(code: {}, state: {}): callbackURL={}", code, state, callbackURL);
         return new ModelAndView(Constant.REDIRECT + callbackURL);
     } 
     

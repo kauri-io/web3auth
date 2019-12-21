@@ -61,7 +61,7 @@ public class DirectWalletIntegration implements WalletIntegration {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     
     private static final BigInteger REQUIRED_SIGNATURES = BigInteger.ONE;
-    private static final BigInteger GAS_LIMIT = BigInteger.valueOf(10_000_000);
+    private static final BigInteger GAS_LIMIT = BigInteger.valueOf(8_000_000);
     private static final BigInteger GAS_PRICE = BigInteger.valueOf(22_000_000_000L);
     
     @AllArgsConstructor

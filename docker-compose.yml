@@ -1,0 +1,82 @@
+version: '3.2'
+services:
+
+  web3auth:
+    build: ./server
+    image: kauriorg/web3auth:snapshot
+    ports:
+    - "8080:8080"
+    environment:
+      LOG_LEVEL: TRACE
+      WEB3AUTH_CONF: classpath:/application.yml
+      SPRING_DATA_MONGODB_HOST: mongodb
+      WEB3AUTH_INSTANCE: demo
+      WEB3AUTH_SERVERURL: http://localhost:8080
+      WEB3AUTH_OTC_TYPE: DB
+      WEB3AUTH_JWT_SECRET: secret
+      WEB3AUTH_WALLET_DIRECT_MODE: DIRECT
+      WEB3AUTH_WALLET_DIRECT_RPCURL: http://eth-node:8545
+      WEB3AUTH_WALLET_DIRECT_MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      WEB3AUTH_SOCIALCONNECT_GITHUB_CLIENTID: "68ea2e38d173c87a02e9"
+      WEB3AUTH_SOCIALCONNECT_GITHUB_CLIENTSECRET: "ed96ad307150af636442ca6bac1d55682615bcd6"
+    depends_on:
+      - mongodb
+      - eth-node
+    networks:
+      - default
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - default
+
+  # ISSUER WITH COMPILER > 0.5.4
+  # eth-node:
+  #   image: kauriorg/parity-docker:latest
+  #   ports:
+  #     - "8545:8545"
+  #     - "8546:8546"
+  #   environment:
+  #     TRANSFER_AMOUNT: 10
+  #     TRANSFER_ACCOUNTS: 0x627306090abaB3A6e1400e9345bC60c78a8BEf57,0xf17f52151EbEF6C7334FAD080c5704D77216b732,0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef
+  #   networks:
+  #     - default
+  eth-node:
+    image: trufflesuite/ganache-cli:latest
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+    environment:
+      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      GAS_LIMIT: "8000000"
+    entrypoint:
+      - node
+      - /app/ganache-core.docker.cli.js
+      - --mnemonic
+      - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+      - --networkId
+      - '17'
+      - --gasLimit
+      - '8000000'
+    networks:
+      - default
+
+  web3auth-demo-react:
+    #image: gjeanmart/web3auth-demo-react
+    build: ./demo/demo-react
+    ports:
+      - "3000:3000"
+    depends_on:
+      - eth-node
+    environment:
+      NETWORK: docker
+      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      REACT_APP_RPC_URL: http://localhost:8545
+      RPC_URL: http://eth-node:8545
+    networks:
+      - default
+
+networks:
+  default:

@@ -56,7 +56,6 @@ public class Web3AuthSettings {
    public static class GitHub {
        private String clientId;
        private String clientSecret; 
-       private String redirect;
    }
    
    @Data

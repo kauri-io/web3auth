@@ -28,6 +28,7 @@ public class SocialConnectGitHubServiceImpl extends AbstractSocialConnectService
     private static final String GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize";
     private static final String GITHUB_ACCESS_TOKEN_URL = "https://github.com/login/oauth/access_token";
     private static final String GITHUB_API_USER_URL = "https://api.github.com/user";
+    private static final String REDIRECT = "/social-connect/auth/github/redirect";
     
 
     @Autowired
@@ -45,7 +46,7 @@ public class SocialConnectGitHubServiceImpl extends AbstractSocialConnectService
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(GITHUB_AUTHORIZE_URL)
                 .queryParam("client_id", configService.getSocialConnect().getGithub().getClientId())
-                .queryParam("redirect_uri", configService.getSocialConnect().getGithub().getRedirect())
+                .queryParam("redirect_uri", configService.getServerUrl() + REDIRECT)
                 .queryParam("state", csrf.getCsrf()) 
                 .queryParam("scope", "user:email");
         
@@ -68,7 +69,7 @@ public class SocialConnectGitHubServiceImpl extends AbstractSocialConnectService
                     .fromUriString(GITHUB_ACCESS_TOKEN_URL)
                     .queryParam("client_id", configService.getSocialConnect().getGithub().getClientId())
                     .queryParam("client_secret", configService.getSocialConnect().getGithub().getClientSecret())
-                    .queryParam("redirect_uri", configService.getSocialConnect().getGithub().getRedirect())
+                    .queryParam("redirect_uri", configService.getServerUrl() + REDIRECT)
                     .queryParam("state", csrf.get().getCsrf()) 
                     .queryParam("code", code);
 
