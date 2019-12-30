@@ -3,13 +3,9 @@
 echo "[INFO] run.sh"
 
 # deploy smart contract
-
 echo "[INFO] Deploy smart contracts (truffle migrate --reset --compile-all --network $NETWORK) ..."
 truffle migrate --reset --compile-all --network $NETWORK || { echo '[ERROR] Failed to migrate' ; exit 1; }
-
-
-# get contract address
-CONTRACT_ADDRESS=$(cat build/contracts/SimpleCounter.json | jq '.networks["17"].address' | tr -d "\"")
+CONTRACT_ADDRESS=$(cat build/contracts/SimpleCounter.json | jq --arg NETWORK_ID $NETWORK_ID '.networks[$NETWORK_ID].address' | tr -d "\"")
 
 # build .env file
 echo MNEMONIC=$MNEMONIC >> .env

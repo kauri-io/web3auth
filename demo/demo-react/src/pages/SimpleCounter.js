@@ -99,8 +99,7 @@ class SimpleCounter extends Component {
   }
 
   async componentDidMount() {
-
-    if(!this.props.provider) {
+    if(this.props.provider === null) {
       window.open("http://localhost:8080/login?client_id=demo-react&redirect_uri=http://localhost:3000/counter", "_self");
       return;
     }

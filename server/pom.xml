@@ -10,14 +10,22 @@
     </parent>
 
     <properties>
-        <web3j.version>4.5.10</web3j.version>
+        <web3j.version>4.5.11</web3j.version>
         <web3j-maven-plugin.version>4.2.0</web3j-maven-plugin.version>
+        <eventeum.version>0.7.1-SNAPSHOT</eventeum.version>
         <jjwt.version>0.5</jjwt.version>
         <elastic-apm.version>1.8.0</elastic-apm.version>
         <frontend-maven-plugin.version>1.8.0</frontend-maven-plugin.version>
         <node.version>v12.14.0</node.version>
         <yarn.version>v1.12.1</yarn.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>bintray-consensys-kauri</id>
+            <url>https://consensys.bintray.com/kauri</url>
+        </repository>
+    </repositories>
 
     <dependencies>
 
@@ -102,6 +110,13 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.8.1</version>
+        </dependency>
+
+        <!-- Eventeum -->
+        <dependency>
+            <groupId>net.consensys.eventeum</groupId>
+            <artifactId>eventeum-core</artifactId>
+            <version>${eventeum.version}</version>
         </dependency>
 
         <!-- Monitoring -->
@@ -255,19 +270,19 @@
                         </goals>
                         <phase>generate-resources</phase>
                     </execution>
-<!--                     <execution> -->
-<!--                         <id>yarn test</id> -->
-<!--                         <goals> -->
-<!--                             <goal>yarn</goal> -->
-<!--                         </goals> -->
-<!--                         <phase>test</phase> -->
-<!--                         <configuration> -->
-<!--                             <arguments>test</arguments> -->
-<!--                             <environmentVariables> -->
-<!--                                 <CI>true</CI> -->
-<!--                             </environmentVariables> -->
-<!--                         </configuration> -->
-<!--                     </execution> -->
+                    <!-- <execution> -->
+                    <!-- <id>yarn test</id> -->
+                    <!-- <goals> -->
+                    <!-- <goal>yarn</goal> -->
+                    <!-- </goals> -->
+                    <!-- <phase>test</phase> -->
+                    <!-- <configuration> -->
+                    <!-- <arguments>test</arguments> -->
+                    <!-- <environmentVariables> -->
+                    <!-- <CI>true</CI> -->
+                    <!-- </environmentVariables> -->
+                    <!-- </configuration> -->
+                    <!-- </execution> -->
                     <execution>
                         <id>yarn build</id>
                         <goals>

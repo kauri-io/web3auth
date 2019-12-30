@@ -12,7 +12,4 @@ public interface WalletService {
     Wallet create(String key);
     String prepareExec(String address, String to, String data);
     String exec(String address, String to, String data, String signature);
-    
-    void onKeyAdded(String address, String key);
-    void onKeyRemoved(String address, String key);
 }

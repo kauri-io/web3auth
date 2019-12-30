@@ -2,7 +2,6 @@ package net.consensys.web3auth.service.wallet.integration;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,12 @@ public class RelayWalletIntegration implements WalletIntegration {
         throw new UnsupportedOperationException("mode RELAY not implemented yet...");
     }
 
+    @Override
+    public String getProxyAddress() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
     @Override
     public String deployWallet(String key) {
         // TODO Auto-generated method stub
@@ -45,24 +50,4 @@ public class RelayWalletIntegration implements WalletIntegration {
         return null;
     }
 
-    @Override
-    public void listenForNewWalletEvents(BiConsumer<String, String> onNewWallet) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void listenForAddedOwnerEvents(List<String> addresses, BiConsumer<String, String> onOwnerAdded) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void listenForRemovedOwnerEvents(List<String> addresses, BiConsumer<String, String> onOwnerRemoved) {
-        // TODO Auto-generated method stub
-        
-    }
-
-
-    
 }

@@ -11,14 +11,15 @@ import org.springframework.util.Assert;
 
 public class CustomWalletRepositoryImpl implements CustomWalletRepository {
 
-    private final MongoTemplate mongoTemplate;
-
     @Autowired
-    public CustomWalletRepositoryImpl(MongoTemplate mongoTemplate) {
-      Assert.notNull(mongoTemplate, "MongoTemplate must not be null!");
-      this.mongoTemplate = mongoTemplate;
-    }
-    
+    MongoTemplate mongoTemplate;
+
+//    @Autowired
+//    public CustomWalletRepositoryImpl(MongoTemplate mongoTemplate) {
+//      Assert.notNull(mongoTemplate, "MongoTemplate must not be null!");
+//      this.mongoTemplate = mongoTemplate;
+//    }
+//    
     @Override
     public List<Wallet> findByKey(String key) {
         Query query = new Query();      

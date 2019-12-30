@@ -4,7 +4,7 @@ echo "Remove old containers"
 docker-compose down
 
 echo "Maven Build"
-#mvn clean install $1
+mvn clean install $1
 [ $? -eq 0 ] || exit $?;
 
 echo "Docker build and start"

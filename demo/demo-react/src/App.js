@@ -26,14 +26,16 @@ class App extends Component {
       if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
         await window.ethereum.enable();
-        this.setState({provider: window.web3.currentProvider});
-      
+        this.setState({...this.state , provider: window.web3.currentProvider});
+
+      } else {
+        // no metamask
       }
 
     } else if(this.state.providerType === "social_connect"){
       const provider = (new Web2Provider({"endpoint": "http://localhost:8080/social-connect"})).getWeb3Provider();
 
-      this.setState({provider: provider});
+      this.setState({...this.state , provider: provider});
 
     } else {
       this.setState({provider: null});

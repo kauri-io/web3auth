@@ -9,7 +9,7 @@ class Header extends Component {
           <div>
 
           <Navbar bg="light" expand="lg">
-            <Navbar.Brand>Kauri Auth PoC</Navbar.Brand>
+            <Navbar.Brand>Web3Auth - demo-react</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="mr-auto">

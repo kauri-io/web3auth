@@ -20,15 +20,22 @@ class Profile extends Component {
   }
 
   async componentDidMount() {
-
-    if(!this.props.provider) {
+    if(this.props.provider === null) {
       window.open("http://localhost:8080/login?client_id=demo-react&redirect_uri=http://localhost:3000/profile", "_self");
       return;
     }
 
-    await this.getWallet();
+    await this.getWallet(); 
+    this.timer = setInterval(
+      async () => await this.getWallet(),
+      1000,
+    );
   }
 
+  componentWillUnmount() {
+      clearInterval(this.timer);
+  }
+  
   async getWallet() {
     const response = await axios.get('http://localhost:8080/account/', { withCredentials: true });
 

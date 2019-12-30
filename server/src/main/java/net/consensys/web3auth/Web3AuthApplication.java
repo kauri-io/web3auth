@@ -14,21 +14,26 @@ import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import lombok.extern.slf4j.Slf4j;
+import net.consensys.eventeum.annotation.EnableEventeum;
 
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class, MongoAutoConfiguration.class,
+        MongoDataAutoConfiguration.class })
 @EnableScheduling
 @EnableWebMvc
+@EnableMongoRepositories("net.consensys.web3auth")
+@EnableEventeum
 @Slf4j
-public class Web3AuthApplication  {
+public class Web3AuthApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Web3AuthApplication .class, args);
+        SpringApplication.run(Web3AuthApplication.class, args);
     }
-    
+
     @SuppressWarnings("rawtypes")
     @EventListener
     public void handleContextRefresh(ContextRefreshedEvent event) {
@@ -36,13 +41,12 @@ public class Web3AuthApplication  {
         log.trace("====== Environment and configuration ======");
         log.trace("Active profiles: {}", Arrays.toString(env.getActiveProfiles()));
         final MutablePropertySources sources = ((AbstractEnvironment) env).getPropertySources();
-        StreamSupport.stream(sources.spliterator(), false)
-                .filter(ps -> ps instanceof EnumerablePropertySource)
-                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-                .flatMap(Arrays::stream)
-                .distinct()
+        StreamSupport.stream(sources.spliterator(), false).filter(ps -> ps instanceof EnumerablePropertySource)
+                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames()).flatMap(Arrays::stream).distinct()
                 .filter(prop -> !(prop.contains("credentials") || prop.contains("password")))
                 .forEach(prop -> log.trace("{}: {}", prop, env.getProperty(prop)));
         log.trace("===========================================");
-}
+    }
+    
+    
 }

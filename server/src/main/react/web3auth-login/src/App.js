@@ -48,6 +48,7 @@ export default function SignIn() {
   // Components functions
 
   const githubRedirect = () => {
+      setDialog({open: true, text: 'Redirecting to GitHub...'})
       window.open(serverUrl + "/social-connect/auth/github?clientId="+clientId+"&redirectUri="+redirectUri, "_self");
   }
 
@@ -68,7 +69,7 @@ export default function SignIn() {
   }
 
   const connect = async (provider, type) => {
-     setShowDialog(true)
+      setDialog({open: true, text: 'We are setting up your account...'})
 
       try {
           const web3 = new Web3(provider);
@@ -84,7 +85,7 @@ export default function SignIn() {
           setSubmit(true)
 
       } catch (error) {
-        setShowDialog(false)
+        setDialog({open: false, text: ''})
         console.log("Error during connect(provider: <>, type:"+type+")", provider, error)
         setError("Error while signing message with "+type+" (details: "+error+")")
       }
@@ -117,7 +118,7 @@ export default function SignIn() {
 
   // Initialise states
   const [submit, setSubmit] = React.useState(false)
-  const [showDialog, setShowDialog] = React.useState(false)
+  const [dialog, setDialog] = React.useState({open: false, text: ''})
   const [error, setError] = React.useState(document.getElementById("thymeleaf_error").value)
   const [form, setForm] = React.useState({
     account: null,
@@ -212,8 +213,8 @@ export default function SignIn() {
         </form>
       </div>
 
-      <Dialog open={showDialog}>
-        <DialogTitle>We are setting up your account</DialogTitle>
+      <Dialog open={dialog.open}>
+        <DialogTitle>{dialog.text}</DialogTitle>
         <DialogContent>
           <DialogContentText>
               <LinearProgress />

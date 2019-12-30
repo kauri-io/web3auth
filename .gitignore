@@ -52,3 +52,7 @@ apikey.py
 *.*docker*
 /.README.md.html
 .env
+
+docker-compose-sokol.yml
+.attach_pid*
+yarn.lock

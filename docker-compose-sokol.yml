@@ -1,33 +1,33 @@
 version: '3.2'
 services:
 
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - default
+
   web3auth:
     build: ./server
-    #image: kauriorg/web3auth:snapshot
+    #image: web3auth_web3auth
     ports:
     - "8080:8080"
     environment:
       LOG_LEVEL: TRACE
       WEB3AUTH_CONF: classpath:/application.yml
       SPRING_DATA_MONGODB_HOST: mongodb
+      ETH_RPC_URL: https://sokol.poa.network
       WEB3AUTH_INSTANCE: demo
       WEB3AUTH_SERVERURL: http://localhost:8080
       WEB3AUTH_OTC_TYPE: DB
       WEB3AUTH_JWT_SECRET: secret
       WEB3AUTH_WALLET_DIRECT_MODE: DIRECT
-      WEB3AUTH_WALLET_DIRECT_RPCURL: https://sokol.poa.network
       WEB3AUTH_WALLET_DIRECT_MNEMONIC: "CHANGE_ME"
-      WEB3AUTH_SOCIALCONNECT_GITHUB_CLIENTID: "68ea2e38d173c87a02e9"
-      WEB3AUTH_SOCIALCONNECT_GITHUB_CLIENTSECRET: "ed96ad307150af636442ca6bac1d55682615bcd6"
+      WEB3AUTH_SOCIALCONNECT_GITHUB_CLIENTID: "CHANGE_ME"
+      WEB3AUTH_SOCIALCONNECT_GITHUB_CLIENTSECRET: "CHANGE_ME"
     depends_on:
       - mongodb
-    networks:
-      - default
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
     networks:
       - default
 
@@ -38,6 +38,7 @@ services:
       - "3000:3000"
     environment:
       NETWORK: poa_sokol
+      NETWORK_ID: 77
       MNEMONIC: "CHANGE_ME"
       REACT_APP_RPC_URL: https://sokol.poa.network
       RPC_URL: https://sokol.poa.network

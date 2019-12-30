@@ -8,12 +8,10 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.DynamicArray;
@@ -25,8 +23,6 @@ import org.web3j.crypto.Credentials;
 import org.web3j.crypto.MnemonicUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jService;
-import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.protocol.websocket.WebSocketService;
@@ -40,7 +36,6 @@ import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.tx.response.TransactionReceiptProcessor;
 import org.web3j.utils.Numeric;
 
-import io.reactivex.disposables.Disposable;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.consensys.web3auth.configuration.Web3AuthSettings.WalletSetting;
@@ -61,8 +56,8 @@ public class DirectWalletIntegration implements WalletIntegration {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     
     private static final BigInteger REQUIRED_SIGNATURES = BigInteger.ONE;
-    private static final BigInteger GAS_LIMIT = BigInteger.valueOf(8_000_000);
-    private static final BigInteger GAS_PRICE = BigInteger.valueOf(22_000_000_000L);
+    private static final BigInteger GAS_LIMIT = BigInteger.valueOf(8_000_000); //TODO change to property
+    private static final BigInteger GAS_PRICE = BigInteger.valueOf(22_000_000_000L); //TODO change to property
     
     @AllArgsConstructor
     public enum SAFE_OPERATION { 
@@ -78,8 +73,6 @@ public class DirectWalletIntegration implements WalletIntegration {
     private final GnosisSafe gnosisSafeMasterCopy;
     private final TransactionReceiptProcessor receiptProcessor;
     private final  Credentials credentials;
-    private Disposable addedOwnerDisposable;
-    private Disposable removedOwnerDisposable;
     
     public DirectWalletIntegration(ConfigService configService) {
         WalletSetting setting = configService.getWalletSetting();
@@ -154,6 +147,11 @@ public class DirectWalletIntegration implements WalletIntegration {
         } catch(Exception ex) {
             throw new ContractDeploymentException("GnosisSafe", ex);
         }
+    }
+    
+    @Override
+    public String getProxyAddress() {
+        return proxyFactory.getContractAddress();
     }
     
     @Override
@@ -273,60 +271,6 @@ public class DirectWalletIntegration implements WalletIntegration {
         } catch(Exception ex) {
             throw new ContractException("GnosisSafe.exec", ex);
         }
-    }
-
-    @Override
-    public void listenForNewWalletEvents(BiConsumer<String, String> onNewWallet) {
-
-        proxyFactory.proxyCreationEventFlowable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST)
-            .subscribe(event -> {
-                String owner = this.getOwners(event.proxy).get(0);
-                onNewWallet.accept(event.proxy, owner);
-            }); 
-    }
-
-    @Override
-    public void listenForAddedOwnerEvents(List<String> addresses, BiConsumer<String, String> onOwnerAdded) {
-        
-        if(addresses == null || addresses.isEmpty()) {
-            return;
-        }
-        
-        if(addedOwnerDisposable != null) {
-            addedOwnerDisposable.dispose();
-        }
-        
-        EthFilter ethFilter = new EthFilter(
-                DefaultBlockParameterName.EARLIEST, 
-                DefaultBlockParameterName.LATEST, 
-                addresses);
-
-        ethFilter.addSingleTopic(EventEncoder.encode(GnosisSafe.ADDEDOWNER_EVENT));
-
-        addedOwnerDisposable = gnosisSafeMasterCopy.addedOwnerEventFlowable(ethFilter)
-                .subscribe(event ->onOwnerAdded.accept(event.log.getAddress(), event.owner));
-    }
-
-    @Override
-    public void listenForRemovedOwnerEvents(List<String> addresses, BiConsumer<String, String> onOwnerRemoved) {
-
-        if(addresses == null || addresses.isEmpty()) {
-            return;
-        }
-        
-        if(removedOwnerDisposable != null) {
-            addedOwnerDisposable.dispose();
-        }
-        
-        EthFilter ethFilter = new EthFilter(
-                DefaultBlockParameterName.EARLIEST, 
-                DefaultBlockParameterName.LATEST, 
-                addresses);
-
-        ethFilter.addSingleTopic(EventEncoder.encode(GnosisSafe.REMOVEDOWNER_EVENT));
-
-        removedOwnerDisposable = gnosisSafeMasterCopy.removedOwnerEventFlowable(ethFilter)
-                .subscribe(event ->onOwnerRemoved.accept(event.log.getAddress(), event.owner));
     }
     
     private static Web3j connect(String url) {

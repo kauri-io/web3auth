@@ -1,13 +1,12 @@
 server:
   port: ${SERVER_PORT:8080}
-#  servlet:
-#    context-path: /web3auth
 
 logging:
   level:
     net.consensys.web3auth: ${LOG_LEVEL:INFO}
 
-
+#############################################
+# Web3auth Settings
 web3auth:
   instance: demo
   serverUrl: http://localhost:8080
@@ -35,7 +34,7 @@ web3auth:
     #  endpoint: http://localhost:8080/relay
     direct:
       mnemonic: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-      rpcUrl: http://localhost:8545
+      rpcUrl: ${ETH_RPC_URL:http://localhost:8545}
       proxyFactory: "" # if empty - web3auth will deploy it
       gnosisSafeMasterCopy: "" # if empty - web3auth will deploy it
 
@@ -51,7 +50,7 @@ web3auth:
 
   socialConnect:
     github:
-      clientId:
+      clientId: 
       clientSecret: 
 
   cors:
@@ -60,12 +59,6 @@ web3auth:
     headers: "${CORS_HEADERS:Access-Control-Allow-Headers,Origin,X-Requested-With,Content-Type,Accept,X-Auth-Token}"
     credentials: "${CORS_CREDENTIALS:true}"
 
-  mongodb:
-    host: ${SPRING_DATA_MONGODB_HOST:localhost}
-    port: ${SPRING_DATA_MONGODB_PORT:27017}
-    uri: ${SPRING_DATA_MONGODB_URI:#{null}}
-    database: ${SPRING_DATA_MONGODB_DATABASE:web3auth}
-
 #  authority:
 #    mode: NONE # NONE | GETTER | EVENT | CACHE
 #    ethereum: http://localhost:8545 # only for mode GETTER and EVENT
@@ -73,3 +66,42 @@ web3auth:
 #    kafkaAddress: localhost:9092 # only for mode CACHE
 #    groupId: web3auth # only for mode CACHE
 #    topic: contract-events # only for mode CACHE
+
+
+
+#############################################
+# DB Settings
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: web3auth
+      
+      
+#############################################
+# Eventeum Settings
+ethereum:
+  nodes:
+    - name: default
+      url: ${ETH_RPC_URL:http://localhost:8545}
+  healthcheck:
+    pollInterval: 2000
+  blockStrategy: POLL
+
+eventStore:
+  type: DB
+
+database:
+  type: MONGO
+
+broadcaster:
+  type: NONE
+  cache:
+      expirationMillis: 6000000
+  event:
+    confirmation:
+      numBlocksToWait: 12
+      numBlocksToWaitForMissingTx: 100
+      numBlocksToWaitBeforeInvalidating: 2
+  multiInstance: false
